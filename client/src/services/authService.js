@@ -21,11 +21,10 @@ api.interceptors.request.use((config) => {
 
 export const authService = {
   login: async (credentials, userType) => {
-    const endpoint = userType === 'admin' ? '/auth/admin/login' : '/auth/student/login';
-    console.log('Making API call to:', API_URL + endpoint);
+    console.log('Making API call to:', '/api/auth');
     console.log('Credentials:', credentials);
     try {
-      const response = await api.post(endpoint, credentials);
+      const response = await api.post('/auth', credentials);
       console.log('API Response:', response);
       return response;
     } catch (error) {
