@@ -17,9 +17,12 @@ export default function handler(req, res) {
   }
 
   const { url, method } = req;
+  const path = url.replace('/api', '');
+  
+  console.log('API Request:', { url, method, path, body: req.body });
   
   // Admin login
-  if (url === '/auth/admin/login' && method === 'POST') {
+  if (path === '/auth/admin/login' && method === 'POST') {
     const { username, password } = req.body;
     if (username === 'admin' && password === 'admin123') {
       return res.json({
@@ -31,7 +34,7 @@ export default function handler(req, res) {
   }
   
   // Student login
-  if (url === '/auth/student/login' && method === 'POST') {
+  if (path === '/auth/student/login' && method === 'POST') {
     const { email, password } = req.body;
     const student = students.find(s => s.email === email && s.password === password);
     if (student) {
@@ -44,12 +47,12 @@ export default function handler(req, res) {
   }
   
   // Student registration
-  if (url === '/auth/student/register' && method === 'POST') {
+  if (path === '/auth/student/register' && method === 'POST') {
     return res.status(201).json({ message: 'Student registered successfully' });
   }
   
   // Admin dashboard
-  if (url === '/admin/dashboard' && method === 'GET') {
+  if (path === '/admin/dashboard' && method === 'GET') {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token !== 'demo_token_admin') {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -72,7 +75,7 @@ export default function handler(req, res) {
   }
   
   // Student dashboard
-  if (url === '/students/dashboard' && method === 'GET') {
+  if (path === '/students/dashboard' && method === 'GET') {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token?.startsWith('demo_token_student_')) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -89,7 +92,7 @@ export default function handler(req, res) {
   }
   
   // Get students
-  if (url === '/students' && method === 'GET') {
+  if (path === '/students' && method === 'GET') {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token !== 'demo_token_admin') {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -98,5 +101,6 @@ export default function handler(req, res) {
   }
   
   // Default response
-  return res.status(404).json({ message: 'API endpoint not found' });
+  console.log('No matching route found for:', path);
+  return res.status(404).json({ message: 'API endpoint not found', path, url });
 }
