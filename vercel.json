@@ -7,6 +7,22 @@
       "destination": "/api/login.js"
     },
     {
+      "source": "/api/students",
+      "destination": "/api/students.js"
+    },
+    {
+      "source": "/api/admin/dashboard",
+      "destination": "/api/dashboard.js"
+    },
+    {
+      "source": "/api/students/dashboard",
+      "destination": "/api/dashboard.js"
+    },
+    {
+      "source": "/api/auth/student/register",
+      "destination": "/api/register.js"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

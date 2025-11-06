@@ -1,7 +1,12 @@
 import api from './authService';
 
 export const studentService = {
-  getDashboard: () => api.get('/students/dashboard'),
+  getDashboard: async () => {
+    const response = await fetch('/api/students/dashboard', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return { data: await response.json() };
+  },
   getInbox: () => api.get('/students/inbox'),
   registerForCompany: (companyId) => api.post(`/students/register/${companyId}`),
   getQueries: () => api.get('/students/queries'),
@@ -13,8 +18,18 @@ export const studentService = {
 };
 
 export const adminService = {
-  getDashboard: () => api.get('/admin/dashboard'),
-  getStudents: (params) => api.get('/students', { params }),
+  getDashboard: async () => {
+    const response = await fetch('/api/admin/dashboard', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return { data: await response.json() };
+  },
+  getStudents: async (params) => {
+    const response = await fetch('/api/students', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return { data: await response.json() };
+  },
   addStudent: (studentData) => api.post('/students', studentData),
   updateStudent: (id, studentData) => api.put(`/students/${id}`, studentData),
   deleteStudent: (id) => api.delete(`/students/${id}`),

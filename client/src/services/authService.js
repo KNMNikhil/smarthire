@@ -57,7 +57,28 @@ export const authService = {
     return api.post('/auth/reset-password', { token, password, userType });
   },
 
-  registerStudent: (studentData) => api.post('/auth/student/register', studentData)
+  registerStudent: async (studentData) => {
+    try {
+      const response = await fetch('/api/auth/student/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(studentData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      }
+      
+      const data = await response.json();
+      return { data };
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
+  }
 };
 
 export default api;
