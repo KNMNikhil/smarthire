@@ -31,6 +31,11 @@ export default async function handler(req, res) {
   
   console.log('API Request:', { url, method, path, body });
   
+  // Health check
+  if (path === '/health' && method === 'GET') {
+    return res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  }
+  
   // Admin login
   if (path === '/auth/admin/login' && method === 'POST') {
     const { username, password } = body;

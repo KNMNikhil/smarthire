@@ -4,7 +4,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -20,9 +20,18 @@ api.interceptors.request.use((config) => {
 });
 
 export const authService = {
-  login: (credentials, userType) => {
+  login: async (credentials, userType) => {
     const endpoint = userType === 'admin' ? '/auth/admin/login' : '/auth/student/login';
-    return api.post(endpoint, credentials);
+    console.log('Making API call to:', API_URL + endpoint);
+    console.log('Credentials:', credentials);
+    try {
+      const response = await api.post(endpoint, credentials);
+      console.log('API Response:', response);
+      return response;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
   },
 
   forgotPassword: (email, userType) => {
