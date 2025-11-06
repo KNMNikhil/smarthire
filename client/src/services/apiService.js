@@ -7,14 +7,34 @@ export const studentService = {
     });
     return { data: await response.json() };
   },
-  getInbox: () => api.get('/students/inbox'),
+  getInbox: async () => {
+    const response = await fetch('/api/students/inbox', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return { data: await response.json() };
+  },
   registerForCompany: (companyId) => api.post(`/students/register/${companyId}`),
   getQueries: () => api.get('/students/queries'),
   createQuery: (queryData) => api.post('/students/queries', queryData),
   getAlumni: () => api.get('/students/alumni'),
   getMessages: () => api.get('/students/messages'),
-  getProfile: () => api.get('/students/profile'),
-  updateProfile: (profileData) => api.put('/students/profile', profileData)
+  getProfile: async () => {
+    const response = await fetch('/api/students/profile', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return { data: await response.json() };
+  },
+  updateProfile: async (profileData) => {
+    const response = await fetch('/api/students/profile', {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      },
+      body: JSON.stringify(profileData)
+    });
+    return { data: await response.json() };
+  }
 };
 
 export const adminService = {
@@ -30,10 +50,41 @@ export const adminService = {
     });
     return { data: await response.json() };
   },
-  addStudent: (studentData) => api.post('/students', studentData),
-  updateStudent: (id, studentData) => api.put(`/students/${id}`, studentData),
-  deleteStudent: (id) => api.delete(`/students/${id}`),
-  getCompanies: () => api.get('/companies'),
+  addStudent: async (studentData) => {
+    const response = await fetch('/api/students', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      },
+      body: JSON.stringify(studentData)
+    });
+    return { data: await response.json() };
+  },
+  updateStudent: async (id, studentData) => {
+    const response = await fetch(`/api/students?id=${id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      },
+      body: JSON.stringify(studentData)
+    });
+    return { data: await response.json() };
+  },
+  deleteStudent: async (id) => {
+    const response = await fetch(`/api/students?id=${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return { data: await response.json() };
+  },
+  getCompanies: async () => {
+    const response = await fetch('/api/admin/companies', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return { data: await response.json() };
+  },
   getQueries: () => api.get('/admin/queries'),
   replyToQuery: (id, reply) => api.put(`/admin/queries/${id}/reply`, { reply }),
   getStatistics: () => api.get('/admin/statistics'),
@@ -41,10 +92,41 @@ export const adminService = {
 };
 
 export const companyService = {
-  getCompanies: (params) => api.get('/companies', { params }),
-  addCompany: (companyData) => api.post('/companies', companyData),
-  updateCompany: (id, companyData) => api.put(`/companies/${id}`, companyData),
-  deleteCompany: (id) => api.delete(`/companies/${id}`),
+  getCompanies: async (params) => {
+    const response = await fetch('/api/companies', {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return { data: await response.json() };
+  },
+  addCompany: async (companyData) => {
+    const response = await fetch('/api/admin/companies', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      },
+      body: JSON.stringify(companyData)
+    });
+    return { data: await response.json() };
+  },
+  updateCompany: async (id, companyData) => {
+    const response = await fetch(`/api/admin/companies?id=${id}`, {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` 
+      },
+      body: JSON.stringify(companyData)
+    });
+    return { data: await response.json() };
+  },
+  deleteCompany: async (id) => {
+    const response = await fetch(`/api/admin/companies?id=${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    return { data: await response.json() };
+  },
   getCompanyRegistrations: (id, filter) => api.get(`/companies/${id}/registrations`, { params: { filter } }),
   completeCompanyDrive: (id, selectedStudents) => api.post(`/companies/${id}/complete`, { selectedStudents }),
   getHistory: () => api.get('/companies/history')

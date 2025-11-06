@@ -64,8 +64,8 @@ const StudentInbox = () => {
       {eligibleCompanies && eligibleCompanies.length > 0 ? (
         <div className="grid gap-6">
           {eligibleCompanies.map((company) => {
-            const registrationStatus = getRegistrationStatus(company.id, registrations);
-            const isOpen = isRegistrationOpen(company.registrationDeadline);
+            const registrationStatus = getRegistrationStatus(company.id, registrations || []);
+            const isOpen = isRegistrationOpen(company.lastDate || company.driveDate);
             
             return (
               <div key={company.id} className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl overflow-hidden">
@@ -79,7 +79,6 @@ const StudentInbox = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-medium text-white">{company.name}</h3>
-                        <p className="text-sm text-gray-400 mb-2">{company.jobRole}</p>
                         <p className="text-sm text-gray-300 mb-4">{company.description}</p>
                         
                         <div className="grid grid-cols-2 gap-4 text-sm">
@@ -93,36 +92,32 @@ const StudentInbox = () => {
                           </div>
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 text-gray-400 mr-1" />
-                            <span className="font-medium text-gray-400">Visit Date:</span>
+                            <span className="font-medium text-gray-400">Drive Date:</span>
                             <span className="ml-2 text-white">
-                              {new Date(company.visitDate).toLocaleDateString()}
+                              {new Date(company.driveDate).toLocaleDateString()}
                             </span>
                           </div>
                           <div className="flex items-center">
                             <Clock className="h-4 w-4 text-gray-400 mr-1" />
-                            <span className="font-medium text-gray-400">Registration Deadline:</span>
+                            <span className="font-medium text-gray-400">Last Date:</span>
                             <span className="ml-2 text-white">
-                              {new Date(company.registrationDeadline).toLocaleDateString()}
+                              {new Date(company.lastDate).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
 
-                        {/* Eligibility Criteria */}
+                        {/* Requirements */}
                         <div className="mt-4 p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg">
-                          <h4 className="text-sm font-medium text-white mb-2">Eligibility Criteria</h4>
-                          <div className="grid grid-cols-2 gap-2 text-xs text-gray-300">
-                            <div>Min CGPA: {company.eligibilityCriteria.minCgpa}</div>
-                            <div>Max Arrears: {company.eligibilityCriteria.maxArrears}</div>
-                            <div>Min 10th %: {company.eligibilityCriteria.minTenthPercentage}</div>
-                            <div>Min 12th %: {company.eligibilityCriteria.minTwelfthPercentage}</div>
-                          </div>
+                          <h4 className="text-sm font-medium text-white mb-2">Requirements</h4>
+                          <p className="text-xs text-gray-300">{company.requirements}</p>
+                          <p className="text-xs text-gray-300 mt-1">Eligibility: {company.eligibility}</p>
                         </div>
                       </div>
                     </div>
                     
                     <div className="flex flex-col items-end space-y-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/10 backdrop-blur-sm border border-white/20 text-white">
-                        {company.type}
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-600/80 backdrop-blur-sm text-white">
+                        Company
                       </span>
                       
                       {registrationStatus === 'Registered' ? (

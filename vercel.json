@@ -23,6 +23,22 @@
       "destination": "/api/register.js"
     },
     {
+      "source": "/api/students/profile",
+      "destination": "/api/profile.js"
+    },
+    {
+      "source": "/api/companies",
+      "destination": "/api/companies.js"
+    },
+    {
+      "source": "/api/students/inbox",
+      "destination": "/api/companies.js"
+    },
+    {
+      "source": "/api/admin/companies",
+      "destination": "/api/admin-companies.js"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
