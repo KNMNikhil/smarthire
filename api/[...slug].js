@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
 
 const app = express();
 
@@ -13,7 +11,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Load students data
+// Students data
 let students = [
   {
     id: 1,
@@ -101,17 +99,10 @@ let students = [
   }
 ];
 
+let companies = [];
 let nextStudentId = 7;
 
-let companies = [];
-
-// Handle all /api routes
-app.use('/api', (req, res, next) => {
-  req.url = req.url.replace('/api', '');
-  next();
-});
-
-// Student registration
+// Routes
 app.post('/auth/student/register', (req, res) => {
   const { password, confirmPassword, ...studentData } = req.body;
   
@@ -140,7 +131,6 @@ app.post('/auth/student/register', (req, res) => {
   res.status(201).json({ message: 'Student registered successfully' });
 });
 
-// Student login
 app.post('/auth/student/login', (req, res) => {
   const { email, password } = req.body;
   const student = students.find(s => s.email === email && s.password === password);
@@ -155,7 +145,6 @@ app.post('/auth/student/login', (req, res) => {
   }
 });
 
-// Admin login
 app.post('/auth/admin/login', (req, res) => {
   const { username, password } = req.body;
   
@@ -169,7 +158,6 @@ app.post('/auth/admin/login', (req, res) => {
   }
 });
 
-// Student dashboard
 app.get('/students/dashboard', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token || !token.startsWith('demo_token_student_')) {
@@ -190,7 +178,6 @@ app.get('/students/dashboard', (req, res) => {
   });
 });
 
-// Admin dashboard
 app.get('/admin/dashboard', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token || token !== 'demo_token_admin') {
@@ -213,7 +200,6 @@ app.get('/admin/dashboard', (req, res) => {
   });
 });
 
-// Get students
 app.get('/students', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token || token !== 'demo_token_admin') {
@@ -223,7 +209,6 @@ app.get('/students', (req, res) => {
   res.json(students.map(s => ({ ...s, password: undefined })));
 });
 
-// Student profile
 app.get('/students/profile', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token || !token.startsWith('demo_token_student_')) {
@@ -241,7 +226,6 @@ app.get('/students/profile', (req, res) => {
   res.json(studentData);
 });
 
-// Student inbox
 app.get('/students/inbox', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token || !token.startsWith('demo_token_student_')) {
@@ -254,7 +238,6 @@ app.get('/students/inbox', (req, res) => {
   });
 });
 
-// Get companies
 app.get('/companies', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token || token !== 'demo_token_admin') {
@@ -264,4 +247,6 @@ app.get('/companies', (req, res) => {
   res.json(companies);
 });
 
-module.exports = app;
+export default (req, res) => {
+  return app(req, res);
+};
