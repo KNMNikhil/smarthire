@@ -25,7 +25,9 @@ let students = [
     cgpa: "8.8",
     tenthPercentage: "95",
     twelfthPercentage: "97",
-    arrears: 0
+    arrears: 0,
+    department: "CSE",
+    batch: "2022-2026"
   },
   {
     id: 2,
@@ -37,11 +39,100 @@ let students = [
     cgpa: "7.5",
     tenthPercentage: "60",
     twelfthPercentage: "72",
-    arrears: 0
+    arrears: 0,
+    department: "CSE",
+    batch: "2022-2026"
+  },
+  {
+    id: 3,
+    name: "KALAISELVI S",
+    email: "220701116@rajalakshmi.edu.in",
+    rollNo: "220701116",
+    password: "12",
+    placedStatus: "Placed - Dream",
+    cgpa: "8.5",
+    tenthPercentage: "97",
+    twelfthPercentage: "95",
+    arrears: 0,
+    department: "CSE",
+    batch: "2022-2026"
+  },
+  {
+    id: 4,
+    name: "JAYANEE POOBALARAYAN",
+    email: "220701102@rajalakshmi.edu.in",
+    rollNo: "220701102",
+    password: "12",
+    placedStatus: "Placed - Super Dream",
+    cgpa: "8.5",
+    tenthPercentage: "97",
+    twelfthPercentage: "97",
+    arrears: 0,
+    department: "CSE",
+    batch: "2022-2026"
+  },
+  {
+    id: 5,
+    name: "KEERTHIVASAN S",
+    email: "220701128@rajalakshmi.edu.in",
+    rollNo: "220701128",
+    password: "12",
+    placedStatus: "Not Placed",
+    cgpa: "7.4",
+    tenthPercentage: "86",
+    twelfthPercentage: "75",
+    arrears: 0,
+    department: "CSE",
+    batch: "2022-2026"
+  },
+  {
+    id: 6,
+    name: "KAILAASH B",
+    email: "220701115@rajalakshmi.edu.in",
+    rollNo: "220701115",
+    password: "12",
+    placedStatus: "Not Placed",
+    cgpa: "7.1",
+    tenthPercentage: "70",
+    twelfthPercentage: "73",
+    arrears: 0,
+    department: "CSE",
+    batch: "2022-2026"
   }
 ];
 
+let nextStudentId = 7;
+
 let companies = [];
+
+// Student registration
+app.post('/auth/student/register', (req, res) => {
+  const { password, confirmPassword, ...studentData } = req.body;
+  
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: 'Passwords do not match' });
+  }
+
+  const existingStudent = students.find(s => 
+    s.email === studentData.email || s.rollNo === studentData.rollNo
+  );
+  
+  if (existingStudent) {
+    return res.status(400).json({ message: 'Student with this email or roll number already exists' });
+  }
+
+  const newStudent = {
+    id: nextStudentId++,
+    ...studentData,
+    password: password,
+    department: studentData.department || 'CSE',
+    placedStatus: 'Not Placed',
+    createdAt: new Date()
+  };
+  
+  students.push(newStudent);
+  res.status(201).json({ message: 'Student registered successfully' });
+});
 
 // Student login
 app.post('/auth/student/login', (req, res) => {
