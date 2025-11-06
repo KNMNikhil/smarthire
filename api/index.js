@@ -7,7 +7,7 @@ const students = [
   { id: 6, name: "KAILAASH B", email: "220701115@rajalakshmi.edu.in", password: "12", placedStatus: "Not Placed", cgpa: "7.1", tenthPercentage: "70", twelfthPercentage: "73", arrears: 0 }
 ];
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -19,11 +19,21 @@ export default function handler(req, res) {
   const { url, method } = req;
   const path = url.replace('/api', '');
   
-  console.log('API Request:', { url, method, path, body: req.body });
+  // Parse body for POST requests
+  let body = req.body;
+  if (method === 'POST' && typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      console.error('Failed to parse body:', e);
+    }
+  }
+  
+  console.log('API Request:', { url, method, path, body });
   
   // Admin login
   if (path === '/auth/admin/login' && method === 'POST') {
-    const { username, password } = req.body;
+    const { username, password } = body;
     if (username === 'admin' && password === 'admin123') {
       return res.json({
         token: 'demo_token_admin',
@@ -35,7 +45,7 @@ export default function handler(req, res) {
   
   // Student login
   if (path === '/auth/student/login' && method === 'POST') {
-    const { email, password } = req.body;
+    const { email, password } = body;
     const student = students.find(s => s.email === email && s.password === password);
     if (student) {
       return res.json({
