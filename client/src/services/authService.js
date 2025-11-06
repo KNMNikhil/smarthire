@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -21,14 +21,30 @@ api.interceptors.request.use((config) => {
 
 export const authService = {
   login: async (credentials, userType) => {
-    console.log('Making API call to:', '/api/auth');
-    console.log('Credentials:', credentials);
+    console.log('Login attempt:', credentials, userType);
+    
     try {
-      const response = await api.post('/auth', credentials);
-      console.log('API Response:', response);
-      return response;
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Response error:', errorText);
+        throw new Error(`Login failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Login success:', data);
+      return { data };
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('Login error:', error);
       throw error;
     }
   },

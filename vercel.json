@@ -3,8 +3,8 @@
   "outputDirectory": "client/build",
   "rewrites": [
     {
-      "source": "/api/auth",
-      "destination": "/api/auth.js"
+      "source": "/api/login",
+      "destination": "/api/login.js"
     },
     {
       "source": "/(.*)",
