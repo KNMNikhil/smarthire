@@ -105,6 +105,12 @@ let nextStudentId = 7;
 
 let companies = [];
 
+// Handle all /api routes
+app.use('/api', (req, res, next) => {
+  req.url = req.url.replace('/api', '');
+  next();
+});
+
 // Student registration
 app.post('/auth/student/register', (req, res) => {
   const { password, confirmPassword, ...studentData } = req.body;
