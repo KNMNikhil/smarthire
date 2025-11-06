@@ -8,8 +8,8 @@ const students = [
 ];
 
 const companies = [
-  { id: 1, name: "TCS", package: "3.5 LPA", eligibility: "7.0 CGPA" },
-  { id: 2, name: "Infosys", package: "4.0 LPA", eligibility: "7.5 CGPA" }
+  { id: 1, name: "ZOHO", package: "6.5 LPA", eligibility: "7.5 CGPA" },
+  { id: 2, name: "AMAZON", package: "12.0 LPA", eligibility: "8.0 CGPA" }
 ];
 
 export default function handler(req, res) {

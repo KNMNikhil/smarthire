@@ -1,29 +1,29 @@
 let companies = [
   { 
     id: 1, 
-    name: "TCS", 
-    package: "3.5 LPA", 
-    eligibility: "7.0 CGPA", 
-    description: "Tata Consultancy Services - Leading IT services company",
-    requirements: "No arrears, Good communication skills",
+    name: "ZOHO", 
+    package: "6.5 LPA", 
+    eligibility: "7.5 CGPA", 
+    description: "Zoho Corporation - Leading cloud software suite provider",
+    requirements: "No arrears, Strong programming skills, Good problem-solving abilities",
     location: "Chennai, Bangalore",
-    driveDate: "2024-03-15",
-    lastDate: "2024-03-10",
+    driveDate: "2024-03-25",
+    lastDate: "2024-03-20",
     jobRole: "Software Developer",
-    type: "Service Based"
+    type: "Product Based"
   },
   { 
     id: 2, 
-    name: "Infosys", 
-    package: "4.0 LPA", 
-    eligibility: "7.5 CGPA", 
-    description: "Infosys Limited - Global leader in consulting and technology",
-    requirements: "60% in 10th and 12th, No current arrears",
-    location: "Mysore, Pune, Hyderabad",
-    driveDate: "2024-03-20",
-    lastDate: "2024-03-15",
-    jobRole: "Systems Engineer",
-    type: "Service Based"
+    name: "AMAZON", 
+    package: "12.0 LPA", 
+    eligibility: "8.0 CGPA", 
+    description: "Amazon - Global e-commerce and cloud computing leader",
+    requirements: "75% in 10th and 12th, No current arrears, Strong DSA skills",
+    location: "Hyderabad, Bangalore, Chennai",
+    driveDate: "2024-04-05",
+    lastDate: "2024-03-30",
+    jobRole: "Software Development Engineer",
+    type: "Product Based"
   }
 ];
 
