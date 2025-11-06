@@ -10,7 +10,7 @@
     "install-all": "npm install && cd server && npm install && cd ../client && npm install",
     "build": "cd client && CI=false npm run build",
     "start": "cd server && node index.js",
-    "vercel-build": "npm run install-all && cd client && CI=false npm run build && cp -r build/* ../ && cp ../public/_redirects ../"
+    "vercel-build": "npm run install-all && cd client && npm install tailwindcss autoprefixer postcss && CI=false npm run build && cp -r build/* ../ && cp ../public/_redirects ../"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
