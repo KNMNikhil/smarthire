@@ -313,7 +313,7 @@ const AdminStudents = () => {
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
                         <img 
-                          src={student.avatar || (student.rollNo === '220701120' ? '/120.jpg' : student.rollNo === '220701114' ? '/114.jpg' : student.rollNo === '220701102' ? 'https://randomuser.me/api/portraits/women/25.jpg' : student.rollNo === '220701128' ? 'https://randomuser.me/api/portraits/men/52.jpg' : 'https://randomuser.me/api/portraits/women/68.jpg')}
+                          src={student.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}
                           alt="Student Avatar" 
                           className="w-10 h-10 rounded-full object-cover border-2 border-purple-600"
                         />
