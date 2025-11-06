@@ -1,0 +1,35 @@
+{
+  "companies": [
+    {
+      "id": 2,
+      "name": "AMAZON",
+      "jobRole": "SDE",
+      "package": "10-15LPA",
+      "visitDate": "2025-11-05",
+      "type": "Dream",
+      "minCgpa": "8.4",
+      "minLastSemGpa": "8.5",
+      "maxArrears": "0",
+      "tenthMin": "90",
+      "twelfthMin": "95",
+      "requireInternship": false,
+      "createdAt": "2025-11-02T03:45:56.773Z"
+    },
+    {
+      "id": 3,
+      "name": "ZOHO",
+      "jobRole": "AI/ML",
+      "package": "12-15LPA",
+      "visitDate": "2025-11-07",
+      "type": "Super Dream",
+      "minCgpa": "8.5",
+      "minLastSemGpa": "8.2",
+      "maxArrears": "0",
+      "tenthMin": "95",
+      "twelfthMin": "92",
+      "requireInternship": false,
+      "createdAt": "2025-11-02T13:53:08.545Z"
+    }
+  ],
+  "nextCompanyId": 4
+}
