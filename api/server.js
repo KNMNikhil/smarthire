@@ -217,4 +217,45 @@ app.get('/students', (req, res) => {
   res.json(students.map(s => ({ ...s, password: undefined })));
 });
 
+// Student profile
+app.get('/students/profile', (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token || !token.startsWith('demo_token_student_')) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  
+  const studentId = parseInt(token.replace('demo_token_student_', ''));
+  const student = students.find(s => s.id === studentId);
+  
+  if (!student) {
+    return res.status(404).json({ message: 'Student not found' });
+  }
+  
+  const { password, ...studentData } = student;
+  res.json(studentData);
+});
+
+// Student inbox
+app.get('/students/inbox', (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token || !token.startsWith('demo_token_student_')) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  
+  res.json({
+    eligibleCompanies: companies,
+    registrations: []
+  });
+});
+
+// Get companies
+app.get('/companies', (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token || token !== 'demo_token_admin') {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  
+  res.json(companies);
+});
+
 module.exports = app;
