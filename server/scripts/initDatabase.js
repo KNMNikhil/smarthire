@@ -31,7 +31,16 @@ const initializeDatabase = async () => {
         cgpa: 8.5,
         lastSemGpa: 8.7,
         arrears: 0,
-        batch: '2021-2025'
+        batch: '2021-2025',
+        department: 'CSE',
+        currentSemester: 8,
+        sem1Gpa: 8.2,
+        sem2Gpa: 8.4,
+        sem3Gpa: 8.6,
+        sem4Gpa: 8.3,
+        sem5Gpa: 8.8,
+        sem6Gpa: 8.5,
+        sem7Gpa: 8.7
       },
       {
         name: 'Jane Smith',
@@ -45,7 +54,16 @@ const initializeDatabase = async () => {
         cgpa: 9.1,
         lastSemGpa: 9.2,
         arrears: 0,
-        batch: '2021-2025'
+        batch: '2021-2025',
+        department: 'ECE',
+        currentSemester: 8,
+        sem1Gpa: 9.0,
+        sem2Gpa: 9.1,
+        sem3Gpa: 9.2,
+        sem4Gpa: 8.9,
+        sem5Gpa: 9.3,
+        sem6Gpa: 9.0,
+        sem7Gpa: 9.2
       },
       {
         name: 'Mike Johnson',
@@ -59,7 +77,15 @@ const initializeDatabase = async () => {
         cgpa: 7.8,
         lastSemGpa: 8.0,
         arrears: 1,
-        batch: '2021-2025'
+        batch: '2021-2025',
+        department: 'AIML',
+        currentSemester: 7,
+        sem1Gpa: 7.5,
+        sem2Gpa: 7.8,
+        sem3Gpa: 8.0,
+        sem4Gpa: 7.6,
+        sem5Gpa: 8.2,
+        sem6Gpa: 7.9
       }
     ];
 

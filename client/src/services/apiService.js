@@ -1,90 +1,30 @@
 import api from './authService';
 
 export const studentService = {
-  getDashboard: async () => {
-    const response = await fetch('/api/students/dashboard', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return { data: await response.json() };
-  },
-  getInbox: async () => {
-    const response = await fetch('/api/students/inbox', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return { data: await response.json() };
-  },
+  getDashboard: () => api.get('/students/dashboard'),
+  getInbox: () => api.get('/students/inbox'),
   registerForCompany: (companyId) => api.post(`/students/register/${companyId}`),
+  getRegisteredCompanies: () => api.get('/students/registered-companies'),
   getQueries: () => api.get('/students/queries'),
   createQuery: (queryData) => api.post('/students/queries', queryData),
   getAlumni: () => api.get('/students/alumni'),
   getMessages: () => api.get('/students/messages'),
-  getProfile: async () => {
-    const response = await fetch('/api/students/profile', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return { data: await response.json() };
-  },
-  updateProfile: async (profileData) => {
-    const response = await fetch('/api/students/profile', {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` 
-      },
-      body: JSON.stringify(profileData)
-    });
-    return { data: await response.json() };
-  }
+  getProfile: () => api.get('/students/profile'),
+  updateProfile: (profileData) => api.put('/students/profile', profileData),
+  getCalendarEvents: () => api.get('/students/calendar/events'),
+  createCalendarEvent: (eventData) => api.post('/students/calendar/events', eventData),
+  updateCalendarEvent: (id, eventData) => api.put(`/students/calendar/events/${id}`, eventData),
+  deleteCalendarEvent: (id) => api.delete(`/students/calendar/events/${id}`)
 };
 
 export const adminService = {
-  getDashboard: async () => {
-    const response = await fetch('/api/admin/dashboard', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return { data: await response.json() };
-  },
-  getStudents: async (params) => {
-    const response = await fetch('/api/students', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return { data: await response.json() };
-  },
-  addStudent: async (studentData) => {
-    const response = await fetch('/api/students', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` 
-      },
-      body: JSON.stringify(studentData)
-    });
-    return { data: await response.json() };
-  },
-  updateStudent: async (id, studentData) => {
-    const response = await fetch(`/api/students?id=${id}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` 
-      },
-      body: JSON.stringify(studentData)
-    });
-    return { data: await response.json() };
-  },
-  deleteStudent: async (id) => {
-    const response = await fetch(`/api/students?id=${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return { data: await response.json() };
-  },
-  getCompanies: async () => {
-    const response = await fetch('/api/admin/companies', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return { data: await response.json() };
-  },
+  getDashboard: () => api.get('/admin/dashboard'),
+  getStudents: (params) => api.get('/admin/students', { params }),
+  addStudent: (studentData) => api.post('/admin/students', studentData),
+  updateStudent: (id, studentData) => api.put(`/admin/students/${id}`, studentData),
+  deleteStudent: (id) => api.delete(`/admin/students/${id}`),
+  getCompanies: () => api.get('/companies'),
+  getCompanyRegistrations: (companyId) => api.get(`/students/company/${companyId}/registrations`),
   getQueries: () => api.get('/admin/queries'),
   replyToQuery: (id, reply) => api.put(`/admin/queries/${id}/reply`, { reply }),
   getStatistics: () => api.get('/admin/statistics'),
@@ -92,41 +32,10 @@ export const adminService = {
 };
 
 export const companyService = {
-  getCompanies: async (params) => {
-    const response = await fetch('/api/companies', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return { data: await response.json() };
-  },
-  addCompany: async (companyData) => {
-    const response = await fetch('/api/admin/companies', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` 
-      },
-      body: JSON.stringify(companyData)
-    });
-    return { data: await response.json() };
-  },
-  updateCompany: async (id, companyData) => {
-    const response = await fetch(`/api/admin/companies?id=${id}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}` 
-      },
-      body: JSON.stringify(companyData)
-    });
-    return { data: await response.json() };
-  },
-  deleteCompany: async (id) => {
-    const response = await fetch(`/api/admin/companies?id=${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    return { data: await response.json() };
-  },
+  getCompanies: (params) => api.get('/companies', { params }),
+  addCompany: (companyData) => api.post('/companies', companyData),
+  updateCompany: (id, companyData) => api.put(`/companies/${id}`, companyData),
+  deleteCompany: (id) => api.delete(`/companies/${id}`),
   getCompanyRegistrations: (id, filter) => api.get(`/companies/${id}/registrations`, { params: { filter } }),
   completeCompanyDrive: (id, selectedStudents) => api.post(`/companies/${id}/complete`, { selectedStudents }),
   getHistory: () => api.get('/companies/history')

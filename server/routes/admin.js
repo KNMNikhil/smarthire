@@ -3,38 +3,46 @@ const bcrypt = require('bcryptjs');
 const { Student, Company, Registration, Query, History, Message } = require('../models');
 const { authenticateToken, authorizeAdmin } = require('../middlewares/auth');
 const { Op } = require('sequelize');
+const Sequelize = require('sequelize');
 const router = express.Router();
 
 // Get admin dashboard stats
 router.get('/dashboard', authenticateToken, authorizeAdmin, async (req, res) => {
+  console.log('--- ADMIN DASHBOARD REQUEST STARTED ---');
   try {
     const totalStudents = await Student.count();
+    console.log(`Backend - Admin Dashboard: Total Students = ${totalStudents}`);
+
     const placedStudents = await Student.count({
-      where: { 
-        placedStatus: { 
-          [Op.in]: ['Placed - General', 'Placed - Dream', 'Placed - Super Dream'] 
-        } 
+      where: {
+        placedStatus: {
+          [Op.in]: ['Placed - General', 'Placed - Dream', 'Placed - Super Dream']
+        }
       }
     });
+    console.log(`Backend - Admin Dashboard: Placed Students = ${placedStudents}`);
+
     const activeCompanies = await Company.count({
       where: { status: 'Active' }
     });
+
     const pendingQueries = await Query.count({
       where: { status: 'Pending' }
     });
+
     const studentsWithArrears = await Student.count({
       where: { arrears: { [Op.gt]: 0 } }
     });
-    
+
     // Calculate average CGPA
     const avgCgpaResult = await Student.findOne({
       attributes: [
-        [require('sequelize').fn('AVG', require('sequelize').col('cgpa')), 'avgCgpa']
+        [Sequelize.fn('AVG', Sequelize.col('cgpa')), 'avgCgpa']
       ],
       where: { cgpa: { [Op.ne]: null } }
     });
-    
-    const averageCgpa = avgCgpaResult?.dataValues?.avgCgpa ? 
+
+    const averageCgpa = avgCgpaResult?.dataValues?.avgCgpa ?
       parseFloat(avgCgpaResult.dataValues.avgCgpa).toFixed(2) : '0.00';
 
     res.json({
@@ -47,8 +55,9 @@ router.get('/dashboard', authenticateToken, authorizeAdmin, async (req, res) => 
       placementPercentage: totalStudents > 0 ? ((placedStudents / totalStudents) * 100).toFixed(2) : 0
     });
   } catch (error) {
-    console.error('Dashboard stats error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('CRITICAL DASHBOARD ERROR:', error);
+    console.error(error.stack);
+    res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
   }
 });
 
@@ -56,7 +65,7 @@ router.get('/dashboard', authenticateToken, authorizeAdmin, async (req, res) => 
 router.get('/students', authenticateToken, authorizeAdmin, async (req, res) => {
   try {
     const { page, limit, search = '', all } = req.query;
-    
+
     // If 'all' parameter is provided, return all students without pagination
     if (all === 'true') {
       const students = await Student.findAll({
@@ -65,7 +74,7 @@ router.get('/students', authenticateToken, authorizeAdmin, async (req, res) => {
       });
       return res.json(students);
     }
-    
+
     // Otherwise, return paginated results
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
@@ -103,7 +112,7 @@ router.post('/students', authenticateToken, authorizeAdmin, async (req, res) => 
   try {
     const { password, ...studentData } = req.body;
     const hashedPassword = await bcrypt.hash(password, 12);
-    
+
     const student = await Student.create({
       ...studentData,
       password: hashedPassword
@@ -229,7 +238,7 @@ router.get('/statistics', authenticateToken, authorizeAdmin, async (req, res) =>
 router.post('/broadcast', authenticateToken, authorizeAdmin, async (req, res) => {
   try {
     const { message, type = 'broadcast' } = req.body;
-    
+
     const newMessage = await Message.create({
       sender: req.user.username,
       senderType: 'admin',

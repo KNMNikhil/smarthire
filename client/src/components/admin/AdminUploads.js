@@ -1,6 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { companyService } from '../../services/apiService';
-import { Building2, Plus, Search, Edit, Trash2, Calendar, DollarSign } from 'lucide-react';
+import { companyService, adminService } from '../../services/apiService';
+import { Building2, Plus, Search, Edit, Trash2, Calendar, DollarSign, Users } from 'lucide-react';
+
+const RegisteredStudentsList = ({ companyId }) => {
+  const [registrations, setRegistrations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchRegistrations();
+  }, [companyId]);
+
+  const fetchRegistrations = async () => {
+    try {
+      const response = await adminService.getCompanyRegistrations(companyId);
+      setRegistrations(response.data || []);
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="text-xs text-gray-400">Loading...</div>;
+  
+  if (registrations.length === 0) {
+    return <div className="text-xs text-gray-400">No registrations yet</div>;
+  }
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-1 mb-2">
+        <Users className="h-3 w-3" />
+        <span className="font-medium">{registrations.length} registered</span>
+      </div>
+      {registrations.slice(0, 3).map((reg) => (
+        <div key={reg.id} className="text-xs">
+          {reg.Student?.name} ({reg.Student?.rollNo})
+        </div>
+      ))}
+      {registrations.length > 3 && (
+        <div className="text-xs text-gray-500">+{registrations.length - 3} more</div>
+      )}
+    </div>
+  );
+};
 
 const AdminUploads = () => {
   const [companies, setCompanies] = useState([]);
@@ -13,13 +56,14 @@ const AdminUploads = () => {
     jobRole: '',
     package: '',
     visitDate: '',
+    registrationDeadline: '',
     type: 'General',
+    location: '',
     minCgpa: '',
     minLastSemGpa: '',
     maxArrears: '',
     tenthMin: '',
     twelfthMin: '',
-
     requireInternship: false
   });
 
@@ -56,13 +100,14 @@ const AdminUploads = () => {
         jobRole: '',
         package: '',
         visitDate: '',
+        registrationDeadline: '',
         type: 'General',
+        location: '',
         minCgpa: '',
         minLastSemGpa: '',
         maxArrears: '',
         tenthMin: '',
         twelfthMin: '',
-
         requireInternship: false
       });
       fetchCompanies();
@@ -74,7 +119,16 @@ const AdminUploads = () => {
 
   const handleEdit = (company) => {
     setEditingCompany(company);
-    setFormData(company);
+    const criteria = company.eligibilityCriteria || {};
+    setFormData({
+      ...company,
+      minCgpa: criteria.minCgpa || company.minCgpa || '',
+      minLastSemGpa: criteria.minLastSemGpa || company.minLastSemGpa || '',
+      maxArrears: criteria.maxArrears || company.maxArrears || '',
+      tenthMin: criteria.minTenthPercentage || company.tenthMin || '',
+      twelfthMin: criteria.minTwelfthPercentage || company.twelfthMin || '',
+      requireInternship: criteria.requireInternship || company.requireInternship || false
+    });
     setShowAddModal(true);
   };
 
@@ -115,7 +169,7 @@ const AdminUploads = () => {
         </div>
       )}
       {/* Header */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Company Management</h1>
@@ -134,7 +188,7 @@ const AdminUploads = () => {
       {/* Companies Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {companies.map((company) => (
-          <div key={company.id} className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 overflow-hidden rounded-xl">
+          <div key={company.id} className="bg-white/10 shadow-2xl shadow-black/50 overflow-hidden rounded-xl">
             <div className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -160,15 +214,18 @@ const AdminUploads = () => {
                   <Calendar className="h-4 w-4 mr-2" />
                   Visit Date: {new Date(company.visitDate).toLocaleDateString()}
                 </div>
+                {company.location && (
+                  <div className="flex items-center text-sm text-gray-400">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Location: {company.location}
+                  </div>
+                )}
               </div>
 
               <div className="mt-4 bg-white/8 backdrop-blur-sm p-3 rounded-md">
-                <h4 className="text-sm font-medium text-white mb-2">Eligibility Criteria</h4>
-                <div className="grid grid-cols-2 gap-2 text-xs text-gray-400">
-                  <div>Min CGPA: {company.minCgpa}</div>
-                  <div>Max Arrears: {company.maxArrears}</div>
-                  <div>10th Min: {company.tenthMin}%</div>
-                  <div>12th Min: {company.twelfthMin}%</div>
+                <h4 className="text-sm font-medium text-white mb-2">Registered Students</h4>
+                <div className="text-xs text-gray-400">
+                  <RegisteredStudentsList companyId={company.id} />
                 </div>
               </div>
 
@@ -192,7 +249,7 @@ const AdminUploads = () => {
       </div>
 
       {companies.length === 0 && (
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-12 text-center">
+        <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-12 text-center">
           <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">No Companies Added</h3>
           <p className="text-gray-400 mb-4">Get started by adding your first company.</p>
@@ -208,174 +265,222 @@ const AdminUploads = () => {
 
       {/* Add/Edit Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-start justify-center pt-8 z-50">
-          <div className="bg-white shadow-2xl w-full max-w-6xl">
-            <div className="px-6 pb-6">
-              <div className="flex justify-between items-center mb-6 pt-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {editingCompany ? 'Edit Company' : 'Add New Company'}
-                </h2>
-              </div>
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Company Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Job Role</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.jobRole}
-                      onChange={(e) => setFormData({...formData, jobRole: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Package</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.package}
-                      onChange={(e) => setFormData({...formData, package: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Visit Date</label>
-                    <input
-                      type="date"
-                      required
-                      value={formData.visitDate}
-                      onChange={(e) => setFormData({...formData, visitDate: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Type</label>
-                    <select
-                      value={formData.type}
-                      onChange={(e) => setFormData({...formData, type: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="General">General</option>
-                      <option value="Dream">Dream</option>
-                      <option value="Super Dream">Super Dream</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Min CGPA</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      required
-                      value={formData.minCgpa}
-                      onChange={(e) => setFormData({...formData, minCgpa: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Min Last Sem GPA</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={formData.minLastSemGpa}
-                      onChange={(e) => setFormData({...formData, minLastSemGpa: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Max Arrears</label>
-                    <input
-                      type="number"
-                      required
-                      value={formData.maxArrears}
-                      onChange={(e) => setFormData({...formData, maxArrears: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Require Internship</label>
-                    <select
-                      value={formData.requireInternship}
-                      onChange={(e) => setFormData({...formData, requireInternship: e.target.value === 'true'})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value={false}>No</option>
-                      <option value={true}>Yes</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">10th Min %</label>
-                    <input
-                      type="number"
-                      required
-                      value={formData.tenthMin}
-                      onChange={(e) => setFormData({...formData, tenthMin: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">12th Min %</label>
-                    <input
-                      type="number"
-                      required
-                      value={formData.twelfthMin}
-                      onChange={(e) => setFormData({...formData, twelfthMin: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAddModal(false);
-                      setEditingCompany(null);
-                      setFormData({
-                        name: '',
-                        jobRole: '',
-                        package: '',
-                        visitDate: '',
-                        type: 'General',
-                        minCgpa: '',
-                        minLastSemGpa: '',
-                        maxArrears: '',
-                        tenthMin: '',
-                        twelfthMin: '',
-
-                        requireInternship: false
-                      });
-                    }}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                  >
-                    {editingCompany ? 'Update' : 'Add'} Company
-                  </button>
-                </div>
-              </form>
+        <div className="fixed inset-0 w-full h-full bg-black/70 backdrop-blur-md flex items-start justify-center pt-16 p-4" style={{zIndex: 9999}}>
+          <div className="bg-black/95 backdrop-blur-md border border-white/20 shadow-2xl rounded-xl w-full max-w-4xl">
+            <div className="flex items-center justify-between p-4 border-b border-white/20">
+              <h2 className="text-xl font-bold text-white">
+                {editingCompany ? 'Edit Company' : 'Add New Company'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditingCompany(null);
+                  setFormData({
+                    name: '',
+                    jobRole: '',
+                    package: '',
+                    visitDate: '',
+                    registrationDeadline: '',
+                    type: 'General',
+                    location: '',
+                    minCgpa: '',
+                    minLastSemGpa: '',
+                    maxArrears: '',
+                    tenthMin: '',
+                    twelfthMin: '',
+                    requireInternship: false
+                  });
+                }}
+                className="text-white/60 hover:text-white"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
+            <form onSubmit={handleSubmit} className="p-4 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Company Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400"
+                    placeholder="Enter company name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Job Role *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.jobRole}
+                    onChange={(e) => setFormData({...formData, jobRole: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400"
+                    placeholder="Enter job role"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Package *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.package}
+                    onChange={(e) => setFormData({...formData, package: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400"
+                    placeholder="Enter package"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Location *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.location}
+                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400"
+                    placeholder="Enter location"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Visit Date *</label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.visitDate}
+                    onChange={(e) => setFormData({...formData, visitDate: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white"
+                    style={{colorScheme: 'dark'}}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Registration Deadline *</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={formData.registrationDeadline}
+                    onChange={(e) => setFormData({...formData, registrationDeadline: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white"
+                    style={{colorScheme: 'dark'}}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Type *</label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => setFormData({...formData, type: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white"
+                  >
+                    <option value="General" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>General</option>
+                    <option value="Dream" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>Dream</option>
+                    <option value="Super Dream" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>Super Dream</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Min CGPA *</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    required
+                    value={formData.minCgpa}
+                    onChange={(e) => setFormData({...formData, minCgpa: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400"
+                    placeholder="Min CGPA"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Min Last Sem GPA</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={formData.minLastSemGpa}
+                    onChange={(e) => setFormData({...formData, minLastSemGpa: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400"
+                    placeholder="Min last sem GPA"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Max Arrears *</label>
+                  <input
+                    type="number"
+                    required
+                    value={formData.maxArrears}
+                    onChange={(e) => setFormData({...formData, maxArrears: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400"
+                    placeholder="Max arrears"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">10th Min % *</label>
+                  <input
+                    type="number"
+                    required
+                    value={formData.tenthMin}
+                    onChange={(e) => setFormData({...formData, tenthMin: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400"
+                    placeholder="10th min %"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">12th Min % *</label>
+                  <input
+                    type="number"
+                    required
+                    value={formData.twelfthMin}
+                    onChange={(e) => setFormData({...formData, twelfthMin: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400"
+                    placeholder="12th min %"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-white mb-1">Require Internship</label>
+                  <select
+                    value={formData.requireInternship}
+                    onChange={(e) => setFormData({...formData, requireInternship: e.target.value === 'true'})}
+                    className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white"
+                  >
+                    <option value={false} style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>No</option>
+                    <option value={true} style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>Yes</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-3 border-t border-white/20">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setEditingCompany(null);
+                    setFormData({
+                      name: '',
+                      jobRole: '',
+                      package: '',
+                      visitDate: '',
+                      registrationDeadline: '',
+                      registrationLink: '',
+                      type: 'General',
+                      minCgpa: '',
+                      minLastSemGpa: '',
+                      maxArrears: '',
+                      tenthMin: '',
+                      twelfthMin: '',
+                      requireInternship: false
+                    });
+                  }}
+                  className="px-4 py-2 text-sm bg-white/10 border border-white/20 rounded text-white hover:bg-white/20"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm bg-purple-600 text-white rounded hover:bg-purple-700"
+                >
+                  {editingCompany ? 'Update' : 'Add'} Company
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -160,7 +160,33 @@
       "password": "12",
       "department": "CSE",
       "createdAt": "2025-11-05T15:42:19.324Z"
+    },
+    {
+      "id": 7,
+      "name": "JOEL SUNDARSINGH",
+      "email": "220701110@rajalakshmi.edu.in",
+      "rollNo": "220701110",
+      "dob": "2005-08-25",
+      "cgpa": "8.7",
+      "tenthPercentage": "98",
+      "twelfthPercentage": "98",
+      "age": "20",
+      "currentSemester": "7",
+      "sem1Gpa": "8.5",
+      "sem2Gpa": "8.7",
+      "sem3Gpa": "8.4",
+      "sem4Gpa": "8.7",
+      "sem5Gpa": "8.6",
+      "sem6Gpa": "8.4",
+      "arrears": 0,
+      "higherStudies": false,
+      "internship": true,
+      "batch": "2025-2026",
+      "placedStatus": "Placed - Dream",
+      "department": "CSE",
+      "password": "Joel&1",
+      "createdAt": "2025-11-08T06:39:41.054Z"
     }
   ],
-  "nextStudentId": 7
+  "nextStudentId": 8
 }

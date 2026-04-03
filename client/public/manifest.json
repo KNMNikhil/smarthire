@@ -1,6 +1,7 @@
 {
   "short_name": "SmartHire",
   "name": "SmartHire - Placement Portal",
+  "description": "Premium Placement Management System for Students and Administrators.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +11,20 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/student/login",
   "display": "standalone",
   "theme_color": "#8B5CF6",
-  "background_color": "#000000"
+  "background_color": "#000000",
+  "orientation": "portrait",
+  "scope": "/"
 }

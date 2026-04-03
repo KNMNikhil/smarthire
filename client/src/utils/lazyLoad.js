@@ -1,19 +1,47 @@
 import { lazy } from 'react';
 
-export const LazyStudentDashboard = lazy(() => import('../components/student/StudentDashboard'));
-export const LazyStudentInbox = lazy(() => import('../components/student/StudentInbox'));
-export const LazyStudentCalendar = lazy(() => import('../components/student/StudentCalendar'));
-export const LazyStudentQueries = lazy(() => import('../components/student/StudentQueries'));
-export const LazyStudentChats = lazy(() => import('../components/student/StudentChats'));
-export const LazyStudentAlumni = lazy(() => import('../components/student/StudentAlumni'));
-export const LazyStudentProfile = lazy(() => import('../components/student/StudentProfile'));
+// Wrapper to handle ChunkLoadError and retry once
+const retryLoad = (componentImport) => {
+  return new Promise((resolve, reject) => {
+    const key = 'retry-lazy-load-refreshed';
+    const hasRetried = window.sessionStorage.getItem(key);
+    
+    componentImport()
+      .then((component) => {
+        window.sessionStorage.removeItem(key);
+        resolve(component);
+      })
+      .catch((error) => {
+        if (!hasRetried) {
+          window.sessionStorage.setItem(key, 'true');
+          return window.location.reload();
+        }
+        reject(error);
+      });
+  });
+};
 
-export const LazyAdminDashboard = lazy(() => import('../components/admin/AdminDashboard'));
-export const LazyAdminStudents = lazy(() => import('../components/admin/AdminStudents'));
-export const LazyAdminUploads = lazy(() => import('../components/admin/AdminUploads'));
-export const LazyAdminUpdates = lazy(() => import('../components/admin/AdminUpdates'));
-export const LazyAdminStatistics = lazy(() => import('../components/admin/AdminStatistics'));
-export const LazyAdminQueries = lazy(() => import('../components/admin/AdminQueries'));
-export const LazyAdminChats = lazy(() => import('../components/admin/AdminChats'));
-export const LazyAdminHistory = lazy(() => import('../components/admin/AdminHistory'));
-export const LazyAdminProfile = lazy(() => import('../components/admin/AdminProfile'));
+export const LazyStudentDashboard = lazy(() => retryLoad(() => import('../components/student/StudentDashboard')));
+export const LazyStudentInbox = lazy(() => retryLoad(() => import('../components/student/StudentInbox')));
+export const LazyStudentRegistrations = lazy(() => retryLoad(() => import('../components/student/StudentRegistrations')));
+export const LazyStudentCalendar = lazy(() => retryLoad(() => import('../components/student/StudentCalendar')));
+export const LazyStudentBus = lazy(() => retryLoad(() => import('../components/student/StudentBus')));
+export const LazyStudentInternship = lazy(() => retryLoad(() => import('../components/student/StudentInternship')));
+export const LazyStudentLearning = lazy(() => retryLoad(() => import('../components/student/StudentLearning')));
+export const LazyStudentHigherStudies = lazy(() => retryLoad(() => import('../components/student/StudentHigherStudies')));
+export const LazyStudentQueries = lazy(() => retryLoad(() => import('../components/student/StudentQueries')));
+export const LazyStudentChats = lazy(() => retryLoad(() => import('../components/student/StudentChats')));
+export const LazyStudentAlumni = lazy(() => retryLoad(() => import('../components/student/StudentAlumni')));
+export const LazyStudentProfile = lazy(() => retryLoad(() => import('../components/student/StudentProfile')));
+export const LazyResumeScanner = lazy(() => retryLoad(() => import('../components/student/ResumeScanner')));
+
+export const LazyAdminDashboard = lazy(() => retryLoad(() => import('../components/admin/AdminDashboard')));
+export const LazyAdminStudents = lazy(() => retryLoad(() => import('../components/admin/AdminStudents')));
+export const LazyAdminUploads = lazy(() => retryLoad(() => import('../components/admin/AdminUploads')));
+export const LazyAdminBus = lazy(() => retryLoad(() => import('../components/admin/AdminBus')));
+export const LazyAdminUpdates = lazy(() => retryLoad(() => import('../components/admin/AdminUpdates')));
+export const LazyAdminStatistics = lazy(() => retryLoad(() => import('../components/admin/AdminStatistics')));
+export const LazyAdminQueries = lazy(() => retryLoad(() => import('../components/admin/AdminQueries')));
+export const LazyAdminChats = lazy(() => retryLoad(() => import('../components/admin/AdminChats')));
+export const LazyAdminHistory = lazy(() => retryLoad(() => import('../components/admin/AdminHistory')));
+export const LazyAdminProfile = lazy(() => retryLoad(() => import('../components/admin/AdminProfile')));

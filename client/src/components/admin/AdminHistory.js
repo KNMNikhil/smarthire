@@ -134,7 +134,7 @@ const AdminHistory = () => {
   return (
     <div className="space-y-8 p-2 pt-0">
       {/* Header */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-white">Placement History</h1>
@@ -144,11 +144,11 @@ const AdminHistory = () => {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+              className="bg-white/10 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
             >
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
+              <option value="2024" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>2024</option>
+              <option value="2023" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>2023</option>
+              <option value="2022" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>2022</option>
             </select>
           </div>
         </div>
@@ -156,7 +156,7 @@ const AdminHistory = () => {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 p-6 rounded-xl">
+        <div className="bg-white/10 shadow-2xl shadow-black/50 p-6 rounded-xl">
           <div className="h-12 w-12 rounded-lg bg-blue-600 flex items-center justify-center mb-4">
             <Building2 className="h-6 w-6 text-white" />
           </div>
@@ -164,7 +164,7 @@ const AdminHistory = () => {
           <p className="text-3xl font-bold text-white mt-2">{totalStats.totalDrives}</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 p-6 rounded-xl">
+        <div className="bg-white/10 shadow-2xl shadow-black/50 p-6 rounded-xl">
           <div className="h-12 w-12 rounded-lg bg-green-600 flex items-center justify-center mb-4">
             <CheckCircle className="h-6 w-6 text-white" />
           </div>
@@ -172,7 +172,7 @@ const AdminHistory = () => {
           <p className="text-3xl font-bold text-white mt-2">{totalStats.totalSelected}</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 p-6 rounded-xl">
+        <div className="bg-white/10 shadow-2xl shadow-black/50 p-6 rounded-xl">
           <div className="h-12 w-12 rounded-lg bg-purple-600 flex items-center justify-center mb-4">
             <Users className="h-6 w-6 text-white" />
           </div>
@@ -180,7 +180,7 @@ const AdminHistory = () => {
           <p className="text-3xl font-bold text-white mt-2">{totalStats.totalRegistrations}</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 p-6 rounded-xl">
+        <div className="bg-white/10 shadow-2xl shadow-black/50 p-6 rounded-xl">
           <div className="h-12 w-12 rounded-lg bg-orange-600 flex items-center justify-center mb-4">
             <History className="h-6 w-6 text-white" />
           </div>
@@ -190,7 +190,7 @@ const AdminHistory = () => {
       </div>
 
       {/* Search */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <input
@@ -198,13 +198,13 @@ const AdminHistory = () => {
             placeholder="Search by company name or job role..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+            className="pl-10 block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
           />
         </div>
       </div>
 
       {/* History Table */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 overflow-hidden rounded-xl">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 overflow-hidden rounded-xl">
         <div className="px-6 py-6 border-b border-white/20">
           <h3 className="text-xl leading-6 font-semibold text-white">
             Placement Drives History ({selectedYear})
@@ -242,7 +242,7 @@ const AdminHistory = () => {
                         <div className="text-sm font-medium text-white">{drive.companyName}</div>
                         <div className="text-sm text-gray-400">{drive.jobRole}</div>
                         <div className="text-sm text-gray-400">Package: {drive.package}</div>
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white mt-1">
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-white/10 text-white mt-1">
                           {drive.type}
                         </span>
                       </div>
@@ -286,7 +286,7 @@ const AdminHistory = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white">
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-white/10 text-white">
                       {drive.status}
                     </span>
                   </td>

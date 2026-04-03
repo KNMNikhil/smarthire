@@ -16,22 +16,34 @@ const AdminDashboard = () => {
   }, []);
 
   const fetchDashboardStats = async () => {
+    setLoading(true);
+
+    // 1. Fetch Stats
     try {
-      const [statsResponse, studentsResponse] = await Promise.all([
-        adminService.getDashboard(),
-        adminService.getStudents()
-      ]);
+      console.log('Fetching only dashboard stats...');
+      const statsResponse = await adminService.getDashboard();
+      console.log('Stats Success:', statsResponse.data);
       setStats(statsResponse.data);
+    } catch (error) {
+      console.error('Stats Fetch Error:', error);
+    }
+
+    // 2. Fetch Students (Decoupled)
+    try {
+      console.log('Fetching only students...');
+      const studentsResponse = await adminService.getStudents({ all: 'true' });
+      console.log('Students Success:', studentsResponse.data);
       setStudents(studentsResponse.data || []);
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
+      console.error('Students Fetch Error:', error);
+      setStudents([]);
     } finally {
       setLoading(false);
     }
   };
 
   // Calculate accurate placement statistics
-  const actualPlacedStudents = students.filter(s => 
+  const actualPlacedStudents = students.filter(s =>
     ['Placed - General', 'Placed - Dream', 'Placed - Super Dream'].includes(s.placedStatus)
   ).length;
   const actualPlacementPercentage = students.length > 0 ? ((actualPlacedStudents / students.length) * 100).toFixed(2) : 0;
@@ -47,7 +59,7 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-8 p-2 pt-0">
       {/* Header */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
@@ -112,12 +124,12 @@ const AdminDashboard = () => {
       />
 
       {/* Quick Actions */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <h3 className="text-xl font-bold text-white mb-6">Quick Actions</h3>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <button 
+          <button
             onClick={() => navigate('/admin/students')}
-            className="bg-white/8 backdrop-blur-sm border border-gray-400/20 shadow-lg shadow-black/25 p-6 rounded-xl hover:bg-white/12 hover:ring-2 hover:ring-blue-500/50 transition-all duration-200 text-left"
+            className="bg-white/8 shadow-lg shadow-black/25 p-6 rounded-xl hover:bg-white/12 hover:ring-2 hover:ring-blue-500/50 transition-all duration-200 text-left"
           >
             <div className="h-12 w-12 rounded-lg bg-blue-600 flex items-center justify-center mb-4">
               <Users className="h-6 w-6 text-white" />
@@ -128,9 +140,9 @@ const AdminDashboard = () => {
             </p>
           </button>
 
-          <button 
+          <button
             onClick={() => navigate('/admin/uploads')}
-            className="bg-white/8 backdrop-blur-sm border border-gray-400/20 shadow-lg shadow-black/25 p-6 rounded-xl hover:bg-white/12 hover:ring-2 hover:ring-green-500/50 transition-all duration-200 text-left"
+            className="bg-white/8 shadow-lg shadow-black/25 p-6 rounded-xl hover:bg-white/12 hover:ring-2 hover:ring-green-500/50 transition-all duration-200 text-left"
           >
             <div className="h-12 w-12 rounded-lg bg-green-600 flex items-center justify-center mb-4">
               <Building2 className="h-6 w-6 text-white" />
@@ -141,9 +153,9 @@ const AdminDashboard = () => {
             </p>
           </button>
 
-          <button 
+          <button
             onClick={() => navigate('/admin/statistics')}
-            className="bg-white/8 backdrop-blur-sm border border-gray-400/20 shadow-lg shadow-black/25 p-6 rounded-xl hover:bg-white/12 hover:ring-2 hover:ring-purple-500/50 transition-all duration-200 text-left"
+            className="bg-white/8 shadow-lg shadow-black/25 p-6 rounded-xl hover:bg-white/12 hover:ring-2 hover:ring-purple-500/50 transition-all duration-200 text-left"
           >
             <div className="h-12 w-12 rounded-lg bg-purple-600 flex items-center justify-center mb-4">
               <Calendar className="h-6 w-6 text-white" />
@@ -157,7 +169,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Recent Activity Feed */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-white">Recent Activity</h3>
           <div className="flex items-center gap-2">

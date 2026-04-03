@@ -31,7 +31,7 @@ const StudentAlumni = () => {
 
   return (
     <div className="space-y-8 p-2 pt-0">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <div>
           <h1 className="text-3xl font-bold text-white">Alumni Network</h1>
           <p className="text-gray-400">Connect with successful alumni from your college</p>
@@ -41,7 +41,7 @@ const StudentAlumni = () => {
       {alumni.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {alumni.map((alum) => (
-            <div key={alum.id} className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-6">
+            <div key={alum.id} className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-6">
               <div className="text-center">
                 <div className="h-16 w-16 rounded-full bg-purple-600 flex items-center justify-center mx-auto mb-4">
                   <span className="text-xl font-bold text-white">
@@ -55,7 +55,7 @@ const StudentAlumni = () => {
               </div>
               
               {alum.achievements && (
-                <div className="mt-4 p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg">
+                <div className="mt-4 p-3 bg-white/10 rounded-lg">
                   <p className="text-sm text-gray-300">{alum.achievements}</p>
                 </div>
               )}
@@ -84,7 +84,7 @@ const StudentAlumni = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-12 text-center">
+        <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-12 text-center">
           <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">No Alumni Profiles</h3>
           <p className="text-gray-400">Alumni profiles will be added by the admin.</p>

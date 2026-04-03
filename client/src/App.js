@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { SocketProvider } from './contexts/SocketContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 // Auth Components
 import StudentLogin from './components/auth/StudentLogin';
@@ -12,9 +13,10 @@ import ResetPassword from './components/auth/ResetPassword';
 
 // Lazy Components
 import {
-  LazyStudentDashboard, LazyStudentInbox, LazyStudentCalendar,
-  LazyStudentQueries, LazyStudentChats, LazyStudentAlumni, LazyStudentProfile,
-  LazyAdminDashboard, LazyAdminStudents, LazyAdminUploads,
+  LazyStudentDashboard, LazyStudentInbox, LazyStudentRegistrations, LazyStudentCalendar,
+  LazyStudentBus, LazyStudentInternship, LazyStudentLearning, LazyStudentHigherStudies,
+  LazyStudentQueries, LazyStudentChats, LazyStudentAlumni, LazyStudentProfile, LazyResumeScanner,
+  LazyAdminDashboard, LazyAdminStudents, LazyAdminUploads, LazyAdminBus,
   LazyAdminUpdates, LazyAdminStatistics, LazyAdminQueries,
   LazyAdminChats, LazyAdminHistory, LazyAdminProfile
 } from './utils/lazyLoad';
@@ -29,52 +31,61 @@ function App() {
   return (
     <AuthProvider>
       <SocketProvider>
-        <Router>
-          <TopLoader />
-          <div className="min-h-screen bg-gray-50">
-            <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Navigate to="/student/login" />} />
-            <Route path="/student/login" element={<StudentLogin />} />
-            <Route path="/student/register" element={<StudentRegister />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+        <NotificationProvider>
+          <Router>
+            <TopLoader />
+            <div className="min-h-screen bg-black">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Navigate to="/student/login" />} />
+                <Route path="/student/login" element={<StudentLogin />} />
+                <Route path="/student/register" element={<StudentRegister />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Student Protected Routes */}
-            <Route path="/student" element={
-              <ProtectedRoute role="student">
-                <StudentLayout />
-              </ProtectedRoute>
-            }>
-              <Route path="dashboard" element={<Suspense><LazyStudentDashboard /></Suspense>} />
-              <Route path="inbox" element={<Suspense><LazyStudentInbox /></Suspense>} />
-              <Route path="calendar" element={<Suspense><LazyStudentCalendar /></Suspense>} />
-              <Route path="queries" element={<Suspense><LazyStudentQueries /></Suspense>} />
-              <Route path="chats" element={<Suspense><LazyStudentChats /></Suspense>} />
-              <Route path="alumni" element={<Suspense><LazyStudentAlumni /></Suspense>} />
-              <Route path="profile" element={<Suspense><LazyStudentProfile /></Suspense>} />
-            </Route>
+                {/* Student Protected Routes */}
+                <Route path="/student" element={
+                  <ProtectedRoute role="student">
+                    <StudentLayout />
+                  </ProtectedRoute>
+                }>
+                  <Route path="dashboard" element={<Suspense><LazyStudentDashboard /></Suspense>} />
+                  <Route path="inbox" element={<Suspense><LazyStudentInbox /></Suspense>} />
+                  <Route path="registrations" element={<Suspense><LazyStudentRegistrations /></Suspense>} />
+                  <Route path="calendar" element={<Suspense><LazyStudentCalendar /></Suspense>} />
+                  <Route path="bus" element={<Suspense><LazyStudentBus /></Suspense>} />
+                  <Route path="internship" element={<Suspense><LazyStudentInternship /></Suspense>} />
+                  <Route path="learning" element={<Suspense><LazyStudentLearning /></Suspense>} />
+                  <Route path="higher-studies" element={<Suspense><LazyStudentHigherStudies /></Suspense>} />
+                  <Route path="queries" element={<Suspense><LazyStudentQueries /></Suspense>} />
+                  <Route path="chats" element={<Suspense><LazyStudentChats /></Suspense>} />
+                  <Route path="alumni" element={<Suspense><LazyStudentAlumni /></Suspense>} />
+                  <Route path="profile" element={<Suspense><LazyStudentProfile /></Suspense>} />
+                  <Route path="resume-maker" element={<Suspense><LazyResumeScanner /></Suspense>} />
+                </Route>
 
-            {/* Admin Protected Routes */}
-            <Route path="/admin" element={
-              <ProtectedRoute role="admin">
-                <AdminLayout />
-              </ProtectedRoute>
-            }>
-              <Route path="dashboard" element={<Suspense><LazyAdminDashboard /></Suspense>} />
-              <Route path="students" element={<Suspense><LazyAdminStudents /></Suspense>} />
-              <Route path="uploads" element={<Suspense><LazyAdminUploads /></Suspense>} />
-              <Route path="updates" element={<Suspense><LazyAdminUpdates /></Suspense>} />
-              <Route path="statistics" element={<Suspense><LazyAdminStatistics /></Suspense>} />
-              <Route path="queries" element={<Suspense><LazyAdminQueries /></Suspense>} />
-              <Route path="chats" element={<Suspense><LazyAdminChats /></Suspense>} />
-              <Route path="history" element={<Suspense><LazyAdminHistory /></Suspense>} />
-              <Route path="profile" element={<Suspense><LazyAdminProfile /></Suspense>} />
-            </Route>
-            </Routes>
-          </div>
-        </Router>
+                {/* Admin Protected Routes */}
+                <Route path="/admin" element={
+                  <ProtectedRoute role="admin">
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }>
+                  <Route path="dashboard" element={<Suspense><LazyAdminDashboard /></Suspense>} />
+                  <Route path="students" element={<Suspense><LazyAdminStudents /></Suspense>} />
+                  <Route path="uploads" element={<Suspense><LazyAdminUploads /></Suspense>} />
+                  <Route path="bus" element={<Suspense><LazyAdminBus /></Suspense>} />
+                  <Route path="updates" element={<Suspense><LazyAdminUpdates /></Suspense>} />
+                  <Route path="statistics" element={<Suspense><LazyAdminStatistics /></Suspense>} />
+                  <Route path="queries" element={<Suspense><LazyAdminQueries /></Suspense>} />
+                  <Route path="chats" element={<Suspense><LazyAdminChats /></Suspense>} />
+                  <Route path="history" element={<Suspense><LazyAdminHistory /></Suspense>} />
+                  <Route path="profile" element={<Suspense><LazyAdminProfile /></Suspense>} />
+                </Route>
+              </Routes>
+            </div>
+          </Router>
+        </NotificationProvider>
       </SocketProvider>
     </AuthProvider>
   );

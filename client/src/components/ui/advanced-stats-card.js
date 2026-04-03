@@ -15,7 +15,7 @@ export const AdvancedStatsCard = ({ stats }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
-        <Card key={index} className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50">
+        <Card key={index} className="bg-white/10 shadow-2xl shadow-black/50">
           <CardHeader className="border-0 pb-2">
             <CardTitle className="text-gray-400 text-sm font-medium">{stat.title}</CardTitle>
           </CardHeader>

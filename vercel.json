@@ -1,46 +1,29 @@
 {
-  "buildCommand": "cd client && npm install && npm install tailwindcss autoprefixer postcss && npm run build",
-  "outputDirectory": "client/build",
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/api/login",
-      "destination": "/api/login.js"
+      "src": "server/index.js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/api/students",
-      "destination": "/api/students.js"
-    },
-    {
-      "source": "/api/admin/dashboard",
-      "destination": "/api/dashboard.js"
-    },
-    {
-      "source": "/api/students/dashboard",
-      "destination": "/api/dashboard.js"
-    },
-    {
-      "source": "/api/auth/student/register",
-      "destination": "/api/register.js"
-    },
-    {
-      "source": "/api/students/profile",
-      "destination": "/api/profile.js"
-    },
-    {
-      "source": "/api/companies",
-      "destination": "/api/companies.js"
-    },
-    {
-      "source": "/api/students/inbox",
-      "destination": "/api/companies.js"
-    },
-    {
-      "source": "/api/admin/companies",
-      "destination": "/api/admin-companies.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
     }
-  ]
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "client/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

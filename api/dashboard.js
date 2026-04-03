@@ -31,7 +31,7 @@ export default function handler(req, res) {
   if (token === 'demo_token_admin') {
     const totalStudents = students.length;
     const placedStudents = students.filter(s => 
-      ['Placed - General', 'Placed - Dream', 'Placed - Super Dream'].includes(s.placedStatus)
+      ['General', 'Dream', 'Super Dream', 'Placed (General)', 'Placed (Dream)', 'Placed (Super Dream)', 'Placed - General', 'Placed - Dream', 'Placed - Super Dream'].includes(s.placedStatus)
     ).length;
     
     return res.json({

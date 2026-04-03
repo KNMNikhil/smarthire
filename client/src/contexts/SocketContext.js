@@ -20,8 +20,8 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      const newSocket = io(process.env.REACT_APP_SERVER_URL || 'http://localhost:5000');
-      
+      const newSocket = io(process.env.REACT_APP_SERVER_URL || 'http://192.168.68.114:5000');
+
       newSocket.on('connect', () => {
         console.log('Connected to server');
         newSocket.emit('join', user);

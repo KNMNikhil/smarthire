@@ -54,7 +54,7 @@ const Student = sequelize.define('Student', {
     defaultValue: 0
   },
   placedStatus: {
-    type: DataTypes.ENUM('Not Placed', 'General', 'Dream', 'Super Dream'),
+    type: DataTypes.ENUM('Not Placed', 'Placed - General', 'Placed - Dream', 'Placed - Super Dream', 'Higher Studies'),
     defaultValue: 'Not Placed'
   },
   higherStudies: {
@@ -69,6 +69,42 @@ const Student = sequelize.define('Student', {
     type: DataTypes.STRING,
     defaultValue: '2025-2026'
   },
+  department: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  currentSemester: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  sem1Gpa: {
+    type: DataTypes.DECIMAL(4, 2),
+    allowNull: true
+  },
+  sem2Gpa: {
+    type: DataTypes.DECIMAL(4, 2),
+    allowNull: true
+  },
+  sem3Gpa: {
+    type: DataTypes.DECIMAL(4, 2),
+    allowNull: true
+  },
+  sem4Gpa: {
+    type: DataTypes.DECIMAL(4, 2),
+    allowNull: true
+  },
+  sem5Gpa: {
+    type: DataTypes.DECIMAL(4, 2),
+    allowNull: true
+  },
+  sem6Gpa: {
+    type: DataTypes.DECIMAL(4, 2),
+    allowNull: true
+  },
+  sem7Gpa: {
+    type: DataTypes.DECIMAL(4, 2),
+    allowNull: true
+  },
   resetToken: {
     type: DataTypes.STRING,
     allowNull: true
@@ -76,6 +112,18 @@ const Student = sequelize.define('Student', {
   resetTokenExpiry: {
     type: DataTypes.DATE,
     allowNull: true
+  },
+  resumeUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  skills: {
+    type: DataTypes.JSON,
+    defaultValue: []
+  },
+  resumeScore: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
   }
 });
 

@@ -4,7 +4,7 @@ const { Student } = require('./models');
 const addTestStudent = async () => {
   try {
     const hashedPassword = await bcrypt.hash('123456', 12);
-    
+
     const student = await Student.create({
       name: 'Nikhil Sharma',
       email: 'nikhil@test.com',
@@ -18,13 +18,14 @@ const addTestStudent = async () => {
       lastSemGpa: 8.7,
       arrears: 0,
       batch: '2021-2025',
+      department: 'CSE',
       placedStatus: 'Not Placed'
     });
 
     console.log('Test student created:');
     console.log('Email: nikhil@test.com');
     console.log('Password: 123456');
-    
+
   } catch (error) {
     console.error('Error:', error.message);
   }

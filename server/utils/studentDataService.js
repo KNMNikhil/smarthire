@@ -14,8 +14,21 @@ const validateStudentData = (data) => {
     errors.push('Valid email is required');
   }
   
-  if (!data.rollNo || data.rollNo.trim().length < 3) {
-    errors.push('Roll number must be at least 3 characters long');
+  if (!data.rollNo || !/^\d{9}$/.test(data.rollNo.trim())) {
+    errors.push('Roll number must be exactly 9 digits');
+  }
+  
+  if (!data.email.endsWith('@rajalakshmi.edu.in')) {
+    errors.push('Email must end with @rajalakshmi.edu.in');
+  }
+  
+  if (!data.department) {
+    errors.push('Department is required');
+  }
+  
+  const validDepartments = ['CSE', 'ECE', 'AIML', 'AIDS', 'EEE', 'CSBS', 'IT'];
+  if (data.department && !validDepartments.includes(data.department)) {
+    errors.push('Invalid department selected');
   }
   
   // Academic validations

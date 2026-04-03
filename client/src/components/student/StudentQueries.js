@@ -78,7 +78,7 @@ const StudentQueries = () => {
   return (
     <div className="space-y-8 p-2 pt-0">
       {/* Header */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-white">My Queries</h1>
@@ -96,7 +96,7 @@ const StudentQueries = () => {
 
       {/* New Query Form */}
       {showNewQuery && (
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+        <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
           <h2 className="text-xl font-semibold text-white mb-6">Submit New Query</h2>
           <form onSubmit={handleSubmitQuery} className="space-y-4">
             <div>
@@ -109,7 +109,7 @@ const StudentQueries = () => {
                 required
                 value={newQuery.subject}
                 onChange={(e) => setNewQuery({ ...newQuery, subject: e.target.value })}
-                className="mt-1 block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="mt-1 block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
                 placeholder="Enter query subject"
               />
             </div>
@@ -123,7 +123,7 @@ const StudentQueries = () => {
                 required
                 value={newQuery.message}
                 onChange={(e) => setNewQuery({ ...newQuery, message: e.target.value })}
-                className="mt-1 block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="mt-1 block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
                 placeholder="Describe your query in detail"
               />
             </div>
@@ -155,7 +155,7 @@ const StudentQueries = () => {
       )}
 
       {/* Queries List */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 overflow-hidden rounded-xl">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 overflow-hidden rounded-xl">
         <div className="px-6 py-6 border-b border-white/20">
           <h3 className="text-xl leading-6 font-semibold text-white">
             Query History ({queries.length})
@@ -171,7 +171,7 @@ const StudentQueries = () => {
                     <div className="flex items-center space-x-2 mb-2">
                       {getStatusIcon(query.status)}
                       <h3 className="text-sm font-medium text-white">{query.subject}</h3>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/10 backdrop-blur-sm border border-white/20 text-white">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/10 text-white">
                         {query.status}
                       </span>
                     </div>

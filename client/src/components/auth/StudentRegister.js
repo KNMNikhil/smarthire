@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
+import PasswordInput from '../ui/password-input';
+import { Eye, EyeOff } from 'lucide-react';
+import { useNotification } from '../../contexts/NotificationContext';
 
 const StudentRegister = () => {
   const [formData, setFormData] = useState({
@@ -26,11 +29,16 @@ const StudentRegister = () => {
     higherStudies: false,
     internship: false,
     batch: '',
-    placedStatus: 'Not Placed'
+    placedStatus: 'Not Placed',
+    department: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isVisible, setIsVisible] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [rollNoError, setRollNoError] = useState(false);
   const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,10 +53,17 @@ const StudentRegister = () => {
 
     try {
       await authService.registerStudent(formData);
-      alert('Registration successful! Please login with your credentials.');
-      navigate('/student/login');
+      showSuccess(
+        '🎉 Registration successful! Please login with your credentials.',
+        5000
+      );
+      setTimeout(() => {
+        navigate('/student/login');
+      }, 1500);
     } catch (error) {
-      setError(error.response?.data?.message || 'Registration failed');
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      setError(errorMessage);
+      showError(errorMessage, 5000);
     } finally {
       setLoading(false);
     }
@@ -56,6 +71,12 @@ const StudentRegister = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === 'email') {
+      setEmailError(value && !value.endsWith('@rajalakshmi.edu.in'));
+    }
+    if (name === 'rollNo') {
+      setRollNoError(value && !/^\d{9}$/.test(value));
+    }
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value
@@ -88,23 +109,28 @@ const StudentRegister = () => {
             </div>
             <div>
               <label className="block text-xs font-medium text-white mb-1">Email *</label>
-              <input type="email" name="email" placeholder="Enter email" required value={formData.email} onChange={handleChange} className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400" />
+              <input type="email" name="email" placeholder="220701120@rajalakshmi.edu.in" required value={formData.email} onChange={handleChange} className={`w-full px-3 py-2 text-sm bg-white/10 border rounded focus:outline-none focus:ring-1 text-white placeholder-gray-400 ${emailError ? 'border-red-500 focus:ring-red-500' : 'border-white/20 focus:ring-purple-500'}`} />
             </div>
             <div>
               <label className="block text-xs font-medium text-white mb-1">Password *</label>
-              <input type="password" name="password" placeholder="Create password" required value={formData.password} onChange={handleChange} className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400" />
+              <PasswordInput name="password" value={formData.password} onChange={handleChange} placeholder="Create password" required />
             </div>
             <div>
               <label className="block text-xs font-medium text-white mb-1">Confirm Password *</label>
-              <input type="password" name="confirmPassword" placeholder="Confirm password" required value={formData.confirmPassword} onChange={handleChange} className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400" />
+              <div className="relative">
+                <input type={isVisible ? 'text' : 'password'} name="confirmPassword" placeholder="Confirm password" required value={formData.confirmPassword} onChange={handleChange} className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400" />
+                <button type="button" onClick={() => setIsVisible((prev) => !prev)} className="absolute inset-y-0 right-0 outline-none flex items-center justify-center w-9 text-gray-400 hover:text-white">
+                  {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-medium text-white mb-1">Roll Number *</label>
-              <input type="text" name="rollNo" placeholder="Enter roll number" required value={formData.rollNo} onChange={handleChange} className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400" />
+              <input type="text" name="rollNo" placeholder="9 digits (e.g., 220701120)" required value={formData.rollNo} onChange={handleChange} className={`w-full px-3 py-2 text-sm bg-white/10 border rounded focus:outline-none focus:ring-1 text-white placeholder-gray-400 ${rollNoError ? 'border-red-500 focus:ring-red-500' : 'border-white/20 focus:ring-purple-500'}`} />
             </div>
             <div>
               <label className="block text-xs font-medium text-white mb-1">Date of Birth *</label>
-              <input type="date" name="dob" required value={formData.dob} onChange={handleChange} className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white" />
+              <input type="date" name="dob" required value={formData.dob} onChange={handleChange} className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white [color-scheme:dark]" />
             </div>
             <div>
               <label className="block text-xs font-medium text-white mb-1">CGPA *</label>
@@ -133,6 +159,19 @@ const StudentRegister = () => {
             <div>
               <label className="block text-xs font-medium text-white mb-1">Batch *</label>
               <input type="text" name="batch" placeholder="2025-2026" required value={formData.batch} onChange={handleChange} className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white placeholder-gray-400" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-white mb-1">Department *</label>
+              <select name="department" required value={formData.department} onChange={handleChange} className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 text-white">
+                <option value="" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>Select Department</option>
+                <option value="CSE" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>CSE</option>
+                <option value="ECE" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>ECE</option>
+                <option value="AIML" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>AIML</option>
+                <option value="AIDS" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>AIDS</option>
+                <option value="EEE" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>EEE</option>
+                <option value="CSBS" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>CSBS</option>
+                <option value="IT" style={{background: 'rgba(0, 0, 0, 0.9)', color: 'white'}}>IT</option>
+              </select>
             </div>
           </div>
           

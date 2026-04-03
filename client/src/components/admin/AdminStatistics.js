@@ -33,10 +33,10 @@ const AdminStatistics = () => {
 
   useEffect(() => {
     fetchData();
-    
-    // Set up real-time polling every 30 seconds
-    const interval = setInterval(fetchData, 30000);
-    
+
+    // Set up real-time polling every 5 seconds for live updates
+    const interval = setInterval(fetchData, 5000);
+
     return () => {
       clearInterval(interval);
     };
@@ -50,12 +50,12 @@ const AdminStatistics = () => {
         { min: 8.0, max: 9.0 },
         { min: 9.0, max: 10.0 }
       ];
-      
+
       const cgpaDistribution = cgpaRanges.map((range, index) => {
         return students.filter(s => {
           const cgpa = parseFloat(s.cgpa);
           if (isNaN(cgpa)) return false;
-          
+
           // For the last range (9.0-10.0), include 10.0
           if (index === cgpaRanges.length - 1) {
             return cgpa >= range.min && cgpa <= range.max;
@@ -63,7 +63,7 @@ const AdminStatistics = () => {
           return cgpa >= range.min && cgpa < range.max;
         }).length;
       });
-      
+
       setCgpaData(prev => ({
         ...prev,
         datasets: [{
@@ -80,45 +80,47 @@ const AdminStatistics = () => {
     try {
       const [statsResponse, studentsResponse, companiesResponse] = await Promise.all([
         adminService.getDashboard(),
-        adminService.getStudents(),
+        adminService.getStudents({ all: 'true' }),
         adminService.getCompanies()
       ]);
-      
+
       setStats(statsResponse.data);
-      setStudents(studentsResponse.data || []);
+      // Ensure students is always an array
+      const studentsData = Array.isArray(studentsResponse.data) ? studentsResponse.data : [];
+      setStudents(studentsData);
       setCompanies(companiesResponse.data || []);
-      
+
       // Calculate real-time registration data from actual database
       const currentDate = new Date();
       const monthlyData = [];
-      const studentsData = studentsResponse.data || [];
+      const studentsArray = studentsResponse.data || [];
       const companiesData = companiesResponse.data || [];
-      
+
       for (let i = 5; i >= 0; i--) {
         const month = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
         const monthName = month.toLocaleDateString('en-US', { month: 'short' });
-        
+
         // Filter students registered in this month
-        const monthRegistrations = studentsData.filter(student => {
+        const monthRegistrations = studentsArray.filter(student => {
           if (!student.createdAt) return false;
           const regDate = new Date(student.createdAt);
           return regDate.getMonth() === month.getMonth() && regDate.getFullYear() === month.getFullYear();
         }).length;
-        
+
         // Filter companies added in this month
         const monthCompanies = companiesData.filter(company => {
           if (!company.createdAt) return false;
           const compDate = new Date(company.createdAt);
           return compDate.getMonth() === month.getMonth() && compDate.getFullYear() === month.getFullYear();
         }).length;
-        
+
         monthlyData.push({
           month: monthName,
           registrations: monthRegistrations,
           companies: monthCompanies
         });
       }
-      
+
       setRegistrations(monthlyData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -135,11 +137,11 @@ const AdminStatistics = () => {
     );
   }
 
-  // Calculate placed students from actual data
-  const actualPlacedStudents = students.filter(s => 
-    ['Placed - General', 'Placed - Dream', 'Placed - Super Dream'].includes(s.placedStatus)
+  // Calculate placed students from actual data with all placement status formats
+  const actualPlacedStudents = students.filter(s =>
+    ['General', 'Dream', 'Super Dream', 'Placed (General)', 'Placed (Dream)', 'Placed (Super Dream)', 'Placed - General', 'Placed - Dream', 'Placed - Super Dream'].includes(s.placedStatus)
   ).length;
-  
+
   // Placement Status Chart Data
   const placementData = {
     labels: ['Placed', 'Not Placed'],
@@ -152,34 +154,34 @@ const AdminStatistics = () => {
 
   // Arrears Chart Data for Donut Chart
   const arrearsDonutData = [
-    { 
+    {
       value: students.filter(s => {
         const arrears = parseInt(s.arrears) || 0;
         return arrears === 0;
-      }).length, 
-      color: '#10B981', 
-      label: '0 Arrears' 
+      }).length,
+      color: '#10B981',
+      label: '0 Arrears'
     },
-    { 
+    {
       value: students.filter(s => {
         const arrears = parseInt(s.arrears) || 0;
         return arrears >= 1 && arrears <= 2;
-      }).length, 
-      color: '#F59E0B', 
-      label: '1-2 Arrears' 
+      }).length,
+      color: '#F59E0B',
+      label: '1-2 Arrears'
     },
-    { 
+    {
       value: students.filter(s => {
         const arrears = parseInt(s.arrears) || 0;
         return arrears >= 3;
-      }).length, 
-      color: '#EF4444', 
-      label: '3+ Arrears' 
+      }).length,
+      color: '#EF4444',
+      label: '3+ Arrears'
     }
   ];
-  
 
-  
+
+
   const totalArrearsValue = arrearsDonutData.reduce((sum, d) => sum + d.value, 0);
   const activeArrearsSegment = arrearsDonutData.find(segment => segment.label === hoveredArrears);
   const displayArrearsValue = activeArrearsSegment?.value ?? totalArrearsValue;
@@ -218,7 +220,7 @@ const AdminStatistics = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { 
+      legend: {
         display: true,
         position: 'bottom',
         labels: {
@@ -264,9 +266,9 @@ const AdminStatistics = () => {
 
   return (
     <div className="space-y-8 p-6 overflow-x-hidden">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <h2 className="text-2xl font-bold text-white mb-6">Placement Statistics & Analytics</h2>
-        
+
         {/* Key Metrics */}
         <div className="grid grid-cols-2 gap-6 lg:grid-cols-4 mb-8">
           <div className="text-center">
@@ -290,12 +292,12 @@ const AdminStatistics = () => {
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Placement Status Line Chart */}
-          <div className="bg-white/8 backdrop-blur-sm border border-gray-400/20 shadow-lg shadow-black/25 p-6 rounded-xl">
+          <div className="bg-white/8 shadow-lg shadow-black/25 p-6 rounded-xl">
             <h3 className="text-lg font-semibold text-white mb-4">Placement Status Distribution</h3>
             <div className="h-64 overflow-hidden">
-              <PlacementStatusChart 
-                placedStudents={actualPlacedStudents} 
-                totalStudents={students.length} 
+              <PlacementStatusChart
+                placedStudents={actualPlacedStudents}
+                totalStudents={students.length}
               />
             </div>
             <div className="flex items-center justify-center gap-6 mt-4 pt-3 border-t border-white/10">
@@ -315,19 +317,19 @@ const AdminStatistics = () => {
           </div>
 
           {/* CGPA Distribution Bar Chart */}
-          <div className="bg-white/8 backdrop-blur-sm border border-gray-400/20 shadow-lg shadow-black/25 p-6 rounded-xl">
+          <div className="bg-white/8 shadow-lg shadow-black/25 p-6 rounded-xl">
             <h3 className="text-lg font-semibold text-white mb-4">CGPA Distribution</h3>
             <div className="h-64 overflow-hidden">
-              <Bar 
-                data={cgpaData} 
+              <Bar
+                data={cgpaData}
                 options={{
                   responsive: true,
                   plugins: {
                     legend: {
                       display: false
                     },
-                    title: { 
-                      display: false 
+                    title: {
+                      display: false
                     },
                     ...chartOptions.plugins,
                     tooltip: {
@@ -376,7 +378,7 @@ const AdminStatistics = () => {
                       }
                     }
                   }
-                }} 
+                }}
               />
             </div>
             <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-white/10">
@@ -396,7 +398,7 @@ const AdminStatistics = () => {
           </div>
 
           {/* Arrears Distribution */}
-          <div className="bg-white/8 backdrop-blur-sm border border-gray-400/20 shadow-lg shadow-black/25 p-6 rounded-xl">
+          <div className="bg-white/8 shadow-lg shadow-black/25 p-6 rounded-xl">
             <h3 className="text-lg font-semibold text-white mb-4">Students by Arrears</h3>
             <div className="h-64 overflow-hidden flex items-center justify-center">
               <DonutChart
@@ -440,9 +442,8 @@ const AdminStatistics = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1.2 + index * 0.1, duration: 0.4 }}
-                  className={`flex items-center justify-between p-2 rounded-md transition-all duration-200 cursor-pointer ${
-                    hoveredArrears === segment.label ? 'bg-white/5' : ''
-                  }`}
+                  className={`flex items-center justify-between p-2 rounded-md transition-all duration-200 cursor-pointer ${hoveredArrears === segment.label ? 'bg-white/5' : ''
+                    }`}
                   onMouseEnter={() => setHoveredArrears(segment.label)}
                   onMouseLeave={() => setHoveredArrears(null)}
                 >
@@ -464,7 +465,7 @@ const AdminStatistics = () => {
           </div>
 
           {/* Real-time Monthly Activity */}
-          <div className="bg-white/8 backdrop-blur-sm border border-gray-400/20 shadow-lg shadow-black/25 p-6 rounded-xl">
+          <div className="bg-white/8 shadow-lg shadow-black/25 p-6 rounded-xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Live Activity Overview</h3>
               <div className="flex items-center gap-2">

@@ -1,5 +1,5 @@
 const express = require('express');
-const { Student, Company, Registration, Query, Alumni, Message } = require('../models');
+const { Student, Company, Registration, Query, Alumni, Message, CalendarEvent } = require('../models');
 const { authenticateToken, authorizeStudent } = require('../middlewares/auth');
 const { getEligibilityReport, checkCompanyEligibility, getPlacementStats } = require('../controllers/eligibilityController');
 const { getStudentEligibilitySummary } = require('../utils/studentDataService');
@@ -26,14 +26,35 @@ router.get('/dashboard', authenticateToken, authorizeStudent, async (req, res) =
       return res.status(404).json({ message: 'Student not found' });
     }
 
+    // Get companies based on student placement status
+    let companyTypeFilter = [];
+    
+    if (student.placedStatus === 'Not Placed') {
+      // Show all company types for not placed students
+      companyTypeFilter = ['General', 'Dream', 'Super Dream'];
+    } else if (student.placedStatus === 'Placed - General') {
+      // Show Dream and Super Dream companies
+      companyTypeFilter = ['Dream', 'Super Dream'];
+    } else if (student.placedStatus === 'Placed - Dream') {
+      // Show General and Super Dream companies
+      companyTypeFilter = ['General', 'Super Dream'];
+    } else if (student.placedStatus === 'Placed - Super Dream') {
+      // Show General and Dream companies
+      companyTypeFilter = ['General', 'Dream'];
+    } else {
+      // For Higher Studies or other statuses, show no companies
+      companyTypeFilter = [];
+    }
+
     const eligibleCompanies = await Company.findAll({
       where: {
         status: 'Active',
-        registrationDeadline: { [Op.gt]: new Date() }
+        registrationDeadline: { [Op.gt]: new Date() },
+        type: { [Op.in]: companyTypeFilter }
       }
     });
 
-    // Filter companies based on eligibility
+    // Filter companies based on eligibility criteria
     const eligible = eligibleCompanies.filter(company => {
       const criteria = company.eligibilityCriteria;
       return (
@@ -49,6 +70,22 @@ router.get('/dashboard', authenticateToken, authorizeStudent, async (req, res) =
       );
     });
 
+    // Get placed companies if student is placed
+    let placedCompanies = [];
+    if (['Placed - General', 'Placed - Dream', 'Placed - Super Dream'].includes(student.placedStatus)) {
+      const selectedRegistrations = await Registration.findAll({
+        where: {
+          studentId: student.id,
+          status: 'Selected'
+        },
+        include: [{
+          model: Company,
+          attributes: ['id', 'name', 'type', 'package']
+        }]
+      });
+      placedCompanies = selectedRegistrations.map(reg => reg.Company);
+    }
+
     const responseData = {
       student: {
         id: student.id,
@@ -60,6 +97,7 @@ router.get('/dashboard', authenticateToken, authorizeStudent, async (req, res) =
         batch: student.batch
       },
       eligibleCompanies: eligible,
+      placedCompanies: placedCompanies,
       totalEligible: eligible.length
     };
     
@@ -75,10 +113,27 @@ router.get('/dashboard', authenticateToken, authorizeStudent, async (req, res) =
 router.get('/inbox', authenticateToken, authorizeStudent, async (req, res) => {
   try {
     const student = await Student.findByPk(req.user.id);
+    
+    // Get companies based on student placement status
+    let companyTypeFilter = [];
+    
+    if (student.placedStatus === 'Not Placed') {
+      companyTypeFilter = ['General', 'Dream', 'Super Dream'];
+    } else if (student.placedStatus === 'Placed - General') {
+      companyTypeFilter = ['Dream', 'Super Dream'];
+    } else if (student.placedStatus === 'Placed - Dream') {
+      companyTypeFilter = ['General', 'Super Dream'];
+    } else if (student.placedStatus === 'Placed - Super Dream') {
+      companyTypeFilter = ['General', 'Dream'];
+    } else {
+      companyTypeFilter = [];
+    }
+
     const companies = await Company.findAll({
       where: {
         status: 'Active',
-        registrationDeadline: { [Op.gt]: new Date() }
+        registrationDeadline: { [Op.gt]: new Date() },
+        type: { [Op.in]: companyTypeFilter }
       }
     });
 
@@ -98,9 +153,22 @@ router.get('/inbox', authenticateToken, authorizeStudent, async (req, res) => {
     });
 
     const registrations = await Registration.findAll({
-      where: { studentId: req.user.id },
-      include: [Company]
+      where: { 
+        studentId: req.user.id,
+        status: ['Registered', 'Selected', 'Rejected']
+      },
+      include: [{
+        model: Company,
+        attributes: ['id', 'name', 'jobRole', 'package', 'visitDate', 'location', 'type']
+      }]
     });
+
+    console.log(`Student ${req.user.id} registrations:`, registrations.map(r => ({
+      id: r.id,
+      companyId: r.companyId,
+      status: r.status,
+      companyName: r.Company?.name
+    })));
 
     res.json({
       eligibleCompanies,
@@ -114,32 +182,65 @@ router.get('/inbox', authenticateToken, authorizeStudent, async (req, res) => {
 // Register for company
 router.post('/register/:companyId', authenticateToken, authorizeStudent, async (req, res) => {
   try {
+    console.log('Registration request:', { companyId: req.params.companyId, userId: req.user?.id });
+    
     const { companyId } = req.params;
     const studentId = req.user.id;
 
     const company = await Company.findByPk(companyId);
-    if (!company || company.registrationDeadline < new Date()) {
-      return res.status(400).json({ message: 'Registration deadline passed or company not found' });
+    console.log('Found company:', company ? { id: company.id, name: company.name, deadline: company.registrationDeadline } : 'Not found');
+    
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+    
+    if (company.registrationDeadline < new Date()) {
+      return res.status(400).json({ message: 'Registration deadline has passed' });
     }
 
-    const existingRegistration = await Registration.findOne({
+    let registration = await Registration.findOne({
       where: { studentId, companyId }
     });
 
-    if (existingRegistration) {
-      return res.status(400).json({ message: 'Already registered for this company' });
+    if (registration) {
+      if (registration.status === 'Registered') {
+        return res.status(400).json({ message: 'Already registered for this company' });
+      }
+      // Update existing record
+      await registration.update({
+        status: 'Registered',
+        registeredAt: new Date()
+      });
+    } else {
+      // Create new registration
+      registration = await Registration.create({
+        studentId,
+        companyId,
+        status: 'Registered',
+        registeredAt: new Date()
+      });
     }
 
-    const registration = await Registration.create({
-      studentId,
-      companyId,
-      status: 'Registered',
-      registeredAt: new Date()
-    });
+    // Emit real-time update to admin (if socket.io is available)
+    try {
+      const io = req.app.get('io');
+      if (io) {
+        io.emit('newRegistration', {
+          studentId,
+          companyId,
+          companyName: company.name,
+          registration
+        });
+      }
+    } catch (socketError) {
+      console.log('Socket.io not available:', socketError.message);
+    }
 
+    console.log('Registration successful:', { studentId, companyId, status: registration.status });
     res.json({ message: 'Registration successful', registration });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Registration failed', error: error.message });
   }
 });
 
@@ -228,6 +329,20 @@ router.put('/profile', authenticateToken, authorizeStudent, async (req, res) => 
       return res.status(404).json({ message: 'Student not found' });
     }
     
+    // If placement status is being changed to "Not Placed", clear any "Selected" registrations
+    if (req.body.placedStatus === 'Not Placed' && student.placedStatus !== 'Not Placed') {
+      await Registration.update(
+        { status: 'Registered' },
+        { 
+          where: { 
+            studentId: req.user.id,
+            status: 'Selected'
+          }
+        }
+      );
+      console.log('Cleared Selected registrations for student:', req.user.id);
+    }
+    
     await Student.update(req.body, { where: { id: req.user.id } });
     
     const updatedStudent = await Student.findByPk(req.user.id, {
@@ -255,6 +370,127 @@ router.get('/eligibility/summary', authenticateToken, authorizeStudent, async (r
   try {
     const summary = await getStudentEligibilitySummary(req.user.id);
     res.json(summary);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get registered companies for calendar
+router.get('/registered-companies', authenticateToken, authorizeStudent, async (req, res) => {
+  try {
+    const registrations = await Registration.findAll({
+      where: { 
+        studentId: req.user.id,
+        status: 'Registered'
+      },
+      include: [{
+        model: Company,
+        attributes: ['id', 'name', 'jobRole', 'package', 'visitDate', 'location', 'type']
+      }],
+      order: [['registeredAt', 'DESC']]
+    });
+    
+    const registeredCompanies = registrations.map(reg => reg.Company).filter(company => company);
+    res.json(registeredCompanies);
+  } catch (error) {
+    console.error('Error fetching registered companies:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Calendar Events CRUD
+router.get('/calendar/events', authenticateToken, authorizeStudent, async (req, res) => {
+  try {
+    const events = await CalendarEvent.findAll({
+      where: { studentId: req.user.id },
+      order: [['startTime', 'ASC']]
+    });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.post('/calendar/events', authenticateToken, authorizeStudent, async (req, res) => {
+  try {
+    console.log('Creating calendar event for student:', req.user.id);
+    console.log('Event data:', req.body);
+    
+    // Validate required fields
+    const { title, startTime, endTime } = req.body;
+    if (!title || !startTime || !endTime) {
+      return res.status(400).json({ message: 'Title, start time, and end time are required' });
+    }
+    
+    // Verify student exists
+    const student = await Student.findByPk(req.user.id);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+    
+    const eventData = {
+      studentId: req.user.id,
+      title: title.trim(),
+      description: req.body.description || '',
+      startTime: new Date(startTime),
+      endTime: new Date(endTime),
+      color: req.body.color || 'blue',
+      category: req.body.category || 'Personal',
+      tags: req.body.tags || []
+    };
+    
+    const event = await CalendarEvent.create(eventData);
+    console.log('Calendar event created:', event.id);
+    res.status(201).json(event);
+  } catch (error) {
+    console.error('Calendar event creation error:', error);
+    res.status(500).json({ message: 'Failed to create event', error: error.message });
+  }
+});
+
+router.put('/calendar/events/:id', authenticateToken, authorizeStudent, async (req, res) => {
+  try {
+    const event = await CalendarEvent.findOne({
+      where: { id: req.params.id, studentId: req.user.id }
+    });
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    await event.update(req.body);
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.delete('/calendar/events/:id', authenticateToken, authorizeStudent, async (req, res) => {
+  try {
+    const event = await CalendarEvent.findOne({
+      where: { id: req.params.id, studentId: req.user.id }
+    });
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    await event.destroy();
+    res.json({ message: 'Event deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get company registrations (for admin)
+router.get('/company/:companyId/registrations', async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const registrations = await Registration.findAll({
+      where: { companyId },
+      include: [{
+        model: Student,
+        attributes: ['id', 'name', 'rollNo', 'email']
+      }],
+      order: [['registeredAt', 'DESC']]
+    });
+    res.json(registrations);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

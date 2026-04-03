@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || '/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://192.168.68.114:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -20,33 +20,9 @@ api.interceptors.request.use((config) => {
 });
 
 export const authService = {
-  login: async (credentials, userType) => {
-    console.log('Login attempt:', credentials, userType);
-    
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
-      });
-      
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response error:', errorText);
-        throw new Error(`Login failed: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('Login success:', data);
-      return { data };
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
+  login: (credentials, userType) => {
+    const endpoint = userType === 'admin' ? '/auth/admin/login' : '/auth/student/login';
+    return api.post(endpoint, credentials);
   },
 
   forgotPassword: (email, userType) => {
@@ -57,28 +33,7 @@ export const authService = {
     return api.post('/auth/reset-password', { token, password, userType });
   },
 
-  registerStudent: async (studentData) => {
-    try {
-      const response = await fetch('/api/auth/student/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(studentData)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
-      
-      const data = await response.json();
-      return { data };
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
-    }
-  }
+  registerStudent: (studentData) => api.post('/auth/student/register', studentData)
 };
 
 export default api;

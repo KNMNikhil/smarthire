@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, Building2, RefreshCw, BarChart3, HelpCircle, MessageSquare, History, User, LogOut } from 'lucide-react';
+import { Home, Users, Building2, RefreshCw, BarChart3, HelpCircle, MessageSquare, History, User, LogOut, Bus } from 'lucide-react';
 
 const menuItems = [
   { icon: <Home className="h-5 w-5" />, label: "Dashboard", href: "/admin/dashboard", gradient: "radial-gradient(circle, rgba(147,51,234,0.4) 0%, rgba(126,34,206,0.2) 50%, rgba(88,28,135,0) 100%)" },
   { icon: <Users className="h-5 w-5" />, label: "Students", href: "/admin/students", gradient: "radial-gradient(circle, rgba(147,51,234,0.4) 0%, rgba(126,34,206,0.2) 50%, rgba(88,28,135,0) 100%)" },
   { icon: <Building2 className="h-5 w-5" />, label: "Companies", href: "/admin/uploads", gradient: "radial-gradient(circle, rgba(147,51,234,0.4) 0%, rgba(126,34,206,0.2) 50%, rgba(88,28,135,0) 100%)" },
+  { icon: <Bus className="h-5 w-5" />, label: "Bus Facility", href: "/admin/bus", gradient: "radial-gradient(circle, rgba(147,51,234,0.4) 0%, rgba(126,34,206,0.2) 50%, rgba(88,28,135,0) 100%)" },
   { icon: <RefreshCw className="h-5 w-5" />, label: "Updates", href: "/admin/updates", gradient: "radial-gradient(circle, rgba(147,51,234,0.4) 0%, rgba(126,34,206,0.2) 50%, rgba(88,28,135,0) 100%)" },
   { icon: <BarChart3 className="h-5 w-5" />, label: "Statistics", href: "/admin/statistics", gradient: "radial-gradient(circle, rgba(147,51,234,0.4) 0%, rgba(126,34,206,0.2) 50%, rgba(88,28,135,0) 100%)" },
   { icon: <HelpCircle className="h-5 w-5" />, label: "Queries", href: "/admin/queries", gradient: "radial-gradient(circle, rgba(147,51,234,0.4) 0%, rgba(126,34,206,0.2) 50%, rgba(88,28,135,0) 100%)" },
@@ -49,7 +50,7 @@ function HoverGradientNavBar({ user, handleLogout }) {
   return (
     <div className="fixed top-0 left-0 w-full z-50">
       <motion.nav
-        className="w-full px-4 py-3 mr-4 bg-black/20 backdrop-blur-xl border-b border-white/10 shadow-xl relative"
+        className="w-full px-4 py-3 mr-4 bg-black/20 backdrop-blur-xl shadow-xl relative"
         initial="initial"
         whileHover="hover"
       >

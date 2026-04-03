@@ -14,8 +14,9 @@ router.post('/student/register', async (req, res) => {
     const { password, confirmPassword, ...studentData } = req.body;
     
     // Password validation
-    if (!password || password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!password || !passwordRegex.test(password)) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters with 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character' });
     }
     
     if (password !== confirmPassword) {
@@ -64,6 +65,15 @@ router.post('/student/register', async (req, res) => {
       higherStudies: Boolean(studentData.higherStudies),
       internship: Boolean(studentData.internship),
       batch: studentData.batch || '2025-2026',
+      department: studentData.department,
+      currentSemester: studentData.currentSemester ? parseInt(studentData.currentSemester) : null,
+      sem1Gpa: studentData.sem1Gpa ? parseFloat(studentData.sem1Gpa) : null,
+      sem2Gpa: studentData.sem2Gpa ? parseFloat(studentData.sem2Gpa) : null,
+      sem3Gpa: studentData.sem3Gpa ? parseFloat(studentData.sem3Gpa) : null,
+      sem4Gpa: studentData.sem4Gpa ? parseFloat(studentData.sem4Gpa) : null,
+      sem5Gpa: studentData.sem5Gpa ? parseFloat(studentData.sem5Gpa) : null,
+      sem6Gpa: studentData.sem6Gpa ? parseFloat(studentData.sem6Gpa) : null,
+      sem7Gpa: studentData.sem7Gpa ? parseFloat(studentData.sem7Gpa) : null,
       placedStatus: 'Not Placed',
       password: hashedPassword
     };

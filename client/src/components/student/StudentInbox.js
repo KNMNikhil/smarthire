@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { studentService } from '../../services/apiService';
 import { Building2, Calendar, Clock, CheckCircle, ExternalLink } from 'lucide-react';
+import { useNotification } from '../../contexts/NotificationContext';
+import { motion } from 'framer-motion';
+import Skeleton from '../ui/Skeleton';
+import ConfirmationModal from '../ui/ConfirmationModal';
+import SuccessAnimation from '../ui/SuccessAnimation';
 
 const StudentInbox = () => {
   const [inboxData, setInboxData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [successCompanyName, setSuccessCompanyName] = useState('');
+  const { showSuccess, showError } = useNotification();
 
   useEffect(() => {
     fetchInboxData();
@@ -22,17 +32,51 @@ const StudentInbox = () => {
     }
   };
 
-  const handleRegister = async (companyId) => {
-    setRegistering(companyId);
+  const handleRegisterClick = (company) => {
+    setSelectedCompany(company);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmRegistration = async () => {
+    if (!selectedCompany) return;
+
+    setRegistering(selectedCompany.id);
     try {
-      await studentService.registerForCompany(companyId);
-      await fetchInboxData(); // Refresh data
+      await studentService.registerForCompany(selectedCompany.id);
+
+      setSuccessCompanyName(selectedCompany.name);
+      setShowSuccessAnimation(true);
+
+      setShowConfirmModal(false);
+      setSelectedCompany(null);
+      await fetchInboxData();
+
+      if (window.refreshCalendar) {
+        window.refreshCalendar();
+      }
     } catch (error) {
       console.error('Error registering for company:', error);
-      alert(error.response?.data?.message || 'Registration failed');
+      const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
+      showError(errorMessage, 5000);
     } finally {
       setRegistering(null);
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowConfirmModal(false);
+    setSelectedCompany(null);
+  };
+
+  const handleSuccessAnimationComplete = () => {
+    setShowSuccessAnimation(false);
+    const companyName = successCompanyName;
+    setSuccessCompanyName('');
+
+    showSuccess(
+      `📧 Registration confirmed! Check your email for further details about ${companyName}.\n📅 The event has been added to your calendar.`,
+      6000
+    );
   };
 
   const isRegistrationOpen = (deadline) => {
@@ -40,14 +84,22 @@ const StudentInbox = () => {
   };
 
   const getRegistrationStatus = (companyId, registrations) => {
-    const registration = registrations.find(r => r.companyId === companyId);
-    return registration?.status || 'Not Registered';
+    const registration = registrations.find(r => {
+      const regCompanyId = r.companyId || r.Company?.id;
+      return regCompanyId === companyId;
+    });
+    return registration ? 'Registered' : 'Not Registered';
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="space-y-8 p-2 pt-0">
+        <div className="bg-white/10 shadow-2xl rounded-xl p-8 h-32 relative overflow-hidden">
+          <Skeleton className="w-full h-full" />
+        </div>
+        <div className="grid gap-6">
+          <Skeleton className="h-48" repeat={3} />
+        </div>
       </div>
     );
   }
@@ -55,8 +107,13 @@ const StudentInbox = () => {
   const { eligibleCompanies, registrations } = inboxData || {};
 
   return (
-    <div className="space-y-8 p-2 pt-0">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-8 p-2 pt-0"
+    >
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <h1 className="text-3xl font-bold text-white mb-2">Placement Opportunities</h1>
         <p className="text-gray-400">Companies you're eligible for based on your academic profile</p>
       </div>
@@ -65,10 +122,11 @@ const StudentInbox = () => {
         <div className="grid gap-6">
           {eligibleCompanies.map((company) => {
             const registrationStatus = getRegistrationStatus(company.id, registrations || []);
-            const isOpen = isRegistrationOpen(company.lastDate || company.driveDate);
-            
+            const isOpen = isRegistrationOpen(company.registrationDeadline || company.visitDate);
+            console.log(`Company ${company.name} (ID: ${company.id}) - Status: ${registrationStatus} `);
+
             return (
-              <div key={company.id} className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl overflow-hidden">
+              <div key={company.id} className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl overflow-hidden">
                 <div className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4">
@@ -80,7 +138,7 @@ const StudentInbox = () => {
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-medium text-white">{company.name}</h3>
                         <p className="text-sm text-gray-300 mb-4">{company.description}</p>
-                        
+
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
                             <span className="font-medium text-gray-400">Package:</span>
@@ -94,40 +152,43 @@ const StudentInbox = () => {
                             <Calendar className="h-4 w-4 text-gray-400 mr-1" />
                             <span className="font-medium text-gray-400">Drive Date:</span>
                             <span className="ml-2 text-white">
-                              {new Date(company.driveDate).toLocaleDateString()}
+                              {company.visitDate ? new Date(company.visitDate).toLocaleDateString() : 'TBA'}
                             </span>
                           </div>
                           <div className="flex items-center">
                             <Clock className="h-4 w-4 text-gray-400 mr-1" />
                             <span className="font-medium text-gray-400">Last Date:</span>
                             <span className="ml-2 text-white">
-                              {new Date(company.lastDate).toLocaleDateString()}
+                              {company.registrationDeadline ? new Date(company.registrationDeadline).toLocaleDateString() : 'TBA'}
                             </span>
                           </div>
                         </div>
 
                         {/* Requirements */}
-                        <div className="mt-4 p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg">
+                        <div className="mt-4 p-3 bg-white/10 rounded-lg">
                           <h4 className="text-sm font-medium text-white mb-2">Requirements</h4>
-                          <p className="text-xs text-gray-300">{company.requirements}</p>
-                          <p className="text-xs text-gray-300 mt-1">Eligibility: {company.eligibility}</p>
+                          <div className="text-xs text-gray-300 space-y-1">
+                            <p>CGPA: {company.eligibilityCriteria?.minCgpa ?? company.minCgpa ?? 0} | Last Sem GPA: {company.eligibilityCriteria?.minLastSemGpa ?? company.minLastSemGpa ?? 0}</p>
+                            <p>10th: {company.eligibilityCriteria?.minTenthPercentage ?? company.tenthMin ?? 0}% | 12th: {company.eligibilityCriteria?.minTwelfthPercentage ?? company.twelfthMin ?? 0}%</p>
+                            <p>Max Arrears: {company.eligibilityCriteria?.maxArrears ?? company.maxArrears ?? 0} | Internship: {(company.eligibilityCriteria?.requireInternship ?? company.requireInternship) ? 'Required' : 'Not Required'}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col items-end space-y-2">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-600/80 backdrop-blur-sm text-white">
                         Company
                       </span>
-                      
+
                       {registrationStatus === 'Registered' ? (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-600/80 backdrop-blur-sm text-white">
                           <CheckCircle className="w-4 h-4 mr-1" />
-                          Registered
+                          Registration Successful
                         </span>
                       ) : isOpen ? (
                         <button
-                          onClick={() => handleRegister(company.id)}
+                          onClick={() => handleRegisterClick(company)}
                           disabled={registering === company.id}
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-purple-600/80 backdrop-blur-sm hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transition-all duration-200"
                         >
@@ -153,7 +214,7 @@ const StudentInbox = () => {
           })}
         </div>
       ) : (
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-12 text-center">
+        <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-12 text-center">
           <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">No Opportunities Available</h3>
           <p className="text-gray-400">
@@ -162,7 +223,23 @@ const StudentInbox = () => {
           </p>
         </div>
       )}
-    </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        onClose={handleCloseModal}
+        company={selectedCompany}
+        onConfirm={handleConfirmRegistration}
+        loading={registering === selectedCompany?.id}
+      />
+
+      {/* Success Animation */}
+      <SuccessAnimation
+        isVisible={showSuccessAnimation}
+        onComplete={handleSuccessAnimationComplete}
+        companyName={successCompanyName}
+      />
+    </motion.div>
   );
 };
 

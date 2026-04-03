@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { studentService } from '../../services/apiService';
-import { User, Edit, Save, X } from 'lucide-react';
+import { Edit, Save, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Skeleton from '../ui/Skeleton';
 
 const StudentProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -14,16 +16,12 @@ const StudentProfile = () => {
 
   const fetchProfile = async () => {
     try {
-      console.log('Fetching profile...');
       const response = await studentService.getProfile();
-      console.log('Profile response:', response);
       const profileData = response.data || response;
-      console.log('Profile data:', profileData);
       setProfile(profileData);
       setFormData(profileData);
     } catch (error) {
       console.error('Error fetching profile:', error);
-      console.error('Error details:', error.response);
     } finally {
       setLoading(false);
     }
@@ -40,15 +38,16 @@ const StudentProfile = () => {
 
   const handleSave = async () => {
     try {
-      console.log('Sending profile data:', formData);
       const response = await studentService.updateProfile(formData);
-      console.log('Update response:', response);
-      setProfile(formData);
+      const updatedProfile = response.data?.student || formData;
+      setProfile(updatedProfile);
+      setFormData(updatedProfile);
       setEditing(false);
+
       alert('Profile updated successfully!');
+      window.location.reload();
     } catch (error) {
       console.error('Error updating profile:', error);
-      console.error('Error response:', error.response?.data);
       alert(`Failed to update profile: ${error.response?.data?.message || error.message}`);
     }
   };
@@ -62,15 +61,25 @@ const StudentProfile = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="space-y-8 p-2 pt-0">
+        <div className="bg-white/10 shadow-2xl rounded-xl p-8 h-32 relative overflow-hidden">
+          <Skeleton className="w-full h-full" />
+        </div>
+        <div className="bg-white/10 shadow-2xl rounded-xl p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-16" repeat={6} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 p-2 pt-0">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-8 p-2 pt-0"
+    >
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-white">My Profile</h1>
@@ -95,7 +104,7 @@ const StudentProfile = () => {
               </button>
               <button
                 onClick={handleCancel}
-                className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg shadow-sm text-sm font-medium text-white hover:bg-white/20 transition-all duration-200"
+                className="inline-flex items-center px-4 py-2 bg-white/10 rounded-lg shadow-sm text-sm font-medium text-white hover:bg-white/20 transition-all duration-200"
               >
                 <X className="h-4 w-4 mr-2" />
                 Cancel
@@ -105,7 +114,7 @@ const StudentProfile = () => {
         </div>
       </div>
 
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
@@ -115,7 +124,7 @@ const StudentProfile = () => {
                 name="name"
                 value={formData.name || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white whitespace-nowrap">{profile?.name}</p>
@@ -130,7 +139,7 @@ const StudentProfile = () => {
                 name="email"
                 value={formData.email || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white">{profile?.email}</p>
@@ -145,7 +154,7 @@ const StudentProfile = () => {
                 name="rollNo"
                 value={formData.rollNo || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white whitespace-nowrap">{profile?.rollNo}</p>
@@ -160,7 +169,7 @@ const StudentProfile = () => {
                 name="dob"
                 value={formData.dob || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white">{profile?.dob ? new Date(profile.dob).toLocaleDateString() : 'Not set'}</p>
@@ -176,7 +185,7 @@ const StudentProfile = () => {
                 name="cgpa"
                 value={formData.cgpa || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white">{profile?.cgpa || 'Not set'}</p>
@@ -192,7 +201,7 @@ const StudentProfile = () => {
                 name="tenthPercentage"
                 value={formData.tenthPercentage || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white">{profile?.tenthPercentage || 'Not set'}%</p>
@@ -208,7 +217,7 @@ const StudentProfile = () => {
                 name="twelfthPercentage"
                 value={formData.twelfthPercentage || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white">{profile?.twelfthPercentage || 'Not set'}%</p>
@@ -223,7 +232,7 @@ const StudentProfile = () => {
                 name="age"
                 value={formData.age || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white">{profile?.age || 'Not set'}</p>
@@ -237,11 +246,11 @@ const StudentProfile = () => {
                 name="currentSemester"
                 value={formData.currentSemester || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
               >
-                <option value="">Select Semester</option>
-                <option value="7">7th Semester</option>
-                <option value="8">8th Semester</option>
+                <option value="" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>Select Semester</option>
+                <option value="7" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>7th Semester</option>
+                <option value="8" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>8th Semester</option>
               </select>
             ) : (
               <p className="text-white">{profile?.currentSemester ? `${profile.currentSemester}th Semester` : 'Not set'}</p>
@@ -256,7 +265,7 @@ const StudentProfile = () => {
                 name="arrears"
                 value={formData.arrears || 0}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white">{profile?.arrears || 0}</p>
@@ -269,11 +278,11 @@ const StudentProfile = () => {
               <select
                 name="internship"
                 value={formData.internship ? 'true' : 'false'}
-                onChange={(e) => setFormData({...formData, internship: e.target.value === 'true'})}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+                onChange={(e) => setFormData({ ...formData, internship: e.target.value === 'true' })}
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
               >
-                <option value="false">No</option>
-                <option value="true">Yes</option>
+                <option value="false" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>No</option>
+                <option value="true" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>Yes</option>
               </select>
             ) : (
               <p className="text-white">{profile?.internship ? 'Yes' : 'No'}</p>
@@ -288,10 +297,33 @@ const StudentProfile = () => {
                 name="batch"
                 value={formData.batch || ''}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
               />
             ) : (
               <p className="text-white">{profile?.batch}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Department</label>
+            {editing ? (
+              <select
+                name="department"
+                value={formData.department || ''}
+                onChange={handleChange}
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+              >
+                <option value="" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>Select Department</option>
+                <option value="CSE" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>CSE</option>
+                <option value="ECE" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>ECE</option>
+                <option value="AIML" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>AIML</option>
+                <option value="AIDS" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>AIDS</option>
+                <option value="EEE" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>EEE</option>
+                <option value="CSBS" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>CSBS</option>
+                <option value="IT" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>IT</option>
+              </select>
+            ) : (
+              <p className="text-white">{profile?.department || 'Not set'}</p>
             )}
           </div>
 
@@ -302,16 +334,16 @@ const StudentProfile = () => {
                 name="placedStatus"
                 value={formData.placedStatus || 'Not Placed'}
                 onChange={handleChange}
-                className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+                className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
               >
-                <option value="Not Placed">Not Placed</option>
-                <option value="Placed (General)">Placed (General)</option>
-                <option value="Placed (Dream)">Placed (Dream)</option>
-                <option value="Placed (Super Dream)">Placed (Super Dream)</option>
-                <option value="Higher Studies">Higher Studies</option>
+                <option value="Not Placed" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>Not Placed</option>
+                <option value="Placed - General" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>Placed - General</option>
+                <option value="Placed - Dream" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>Placed - Dream</option>
+                <option value="Placed - Super Dream" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>Placed - Super Dream</option>
+                <option value="Higher Studies" style={{ background: 'rgba(0, 0, 0, 0.9)', color: 'white' }}>Higher Studies</option>
               </select>
             ) : (
-              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white">
+              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-white/10 text-white">
                 {profile?.placedStatus}
               </span>
             )}
@@ -320,7 +352,7 @@ const StudentProfile = () => {
 
         {/* Semester-wise GPA Section */}
         {(profile?.currentSemester || editing) && (
-          <div className="bg-white/8 backdrop-blur-sm border border-gray-400/20 shadow-lg shadow-black/25 rounded-xl p-6 mt-6">
+          <div className="bg-white/8 shadow-lg shadow-black/25 rounded-xl p-6 mt-6">
             <h3 className="text-lg font-medium text-white mb-4">Semester-wise GPA</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {Array.from({ length: parseInt(profile?.currentSemester || formData.currentSemester || 0) - 1 }, (_, i) => (
@@ -335,7 +367,7 @@ const StudentProfile = () => {
                       name={`sem${i + 1}Gpa`}
                       value={formData[`sem${i + 1}Gpa`] || ''}
                       onChange={handleChange}
-                      className="block w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                      className="block w-full bg-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
                     />
                   ) : (
                     <p className="text-white">{profile?.[`sem${i + 1}Gpa`] || 'Not set'}</p>
@@ -346,7 +378,7 @@ const StudentProfile = () => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

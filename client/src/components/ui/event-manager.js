@@ -782,7 +782,7 @@ function EventCard({
           {event.title}
         </div>
         {isHovered && (
-          <div className="absolute left-0 top-full z-50 mt-1 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute left-0 bottom-full z-50 mb-1 w-64 animate-in fade-in slide-in-from-bottom-2 duration-200">
             <div className="bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-3 shadow-xl">
               <div className="space-y-2">
                 <div className="flex items-start justify-between gap-2">

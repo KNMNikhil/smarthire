@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HelpCircle, MessageSquare, Clock, CheckCircle, Send } from 'lucide-react';
+import { adminService } from '../../services/apiService';
 
 const AdminQueries = () => {
   const [queries, setQueries] = useState([]);
@@ -13,9 +14,9 @@ const AdminQueries = () => {
 
   const fetchQueries = async () => {
     try {
-      const response = await fetch('http://localhost:9000/api/admin/queries');
-      const data = await response.json();
-      setQueries(data);
+      const response = await adminService.getQueries();
+      // Ensure we map the nested Student fields if needed, or directly assign
+      setQueries(response.data);
     } catch (error) {
       console.error('Error fetching queries:', error);
     } finally {
@@ -28,19 +29,25 @@ const AdminQueries = () => {
     setReplyText(query.reply || '');
   };
 
-  const submitReply = () => {
-    const updatedQueries = queries.map(q => 
-      q.id === selectedQuery.id 
-        ? { ...q, reply: replyText, status: 'Resolved' }
-        : q
-    );
-    setQueries(updatedQueries);
-    setSelectedQuery(null);
-    setReplyText('');
+  const submitReply = async () => {
+    try {
+      await adminService.replyToQuery(selectedQuery.id, replyText);
+      const updatedQueries = queries.map(q => 
+        q.id === selectedQuery.id 
+          ? { ...q, reply: replyText, status: 'Replied' }
+          : q
+      );
+      setQueries(updatedQueries);
+      setSelectedQuery(null);
+      setReplyText('');
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      alert('Failed to send reply');
+    }
   };
 
   const getStatusColor = (status) => {
-    return status === 'Open' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800';
+    return status === 'Pending' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800';
   };
 
   if (loading) {
@@ -53,27 +60,27 @@ const AdminQueries = () => {
 
   return (
     <div className="space-y-8 p-2 pt-0">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-8">
+      <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-8">
         <h1 className="text-3xl font-bold text-white mb-2">Student Queries</h1>
         <p className="text-gray-400">Manage and respond to student queries</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
         {queries.map((query) => (
-          <div key={query.id} className="bg-white/8 backdrop-blur-sm border border-gray-400/20 shadow-lg shadow-black/25 rounded-xl p-6">
+          <div key={query.id} className="bg-white/8 shadow-lg shadow-black/25 rounded-xl p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-3">
                   <MessageSquare className="h-5 w-5 text-purple-400" />
                   <h3 className="text-lg font-semibold text-white">{query.subject}</h3>
-                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm border border-white/20 text-white">
+                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-white/10 text-white">
                     {query.status}
                   </span>
                 </div>
                 
                 <div className="mb-4">
                   <p className="text-sm text-gray-400 mb-1">
-                    <strong className="text-white">{query.studentName}</strong> ({query.rollNo})
+                    <strong className="text-white">{query.Student?.name || 'Unknown'}</strong> ({query.Student?.rollNo || 'N/A'})
                   </p>
                   <p className="text-gray-300">{query.message}</p>
                 </div>
@@ -91,7 +98,7 @@ const AdminQueries = () => {
                     {new Date(query.createdAt).toLocaleDateString()}
                   </div>
                   
-                  {query.status === 'Open' && (
+                  {query.status === 'Pending' && (
                     <button
                       onClick={() => handleReply(query)}
                       className="bg-purple-600/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-all duration-200"
@@ -108,7 +115,7 @@ const AdminQueries = () => {
 
       {selectedQuery && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl shadow-black/50 rounded-xl p-6 w-full max-w-md">
+          <div className="bg-white/10 shadow-2xl shadow-black/50 rounded-xl p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold mb-4 text-white">Reply to Query</h3>
             <p className="text-sm text-gray-400 mb-4">
               <strong className="text-white">Subject:</strong> {selectedQuery.subject}
@@ -117,7 +124,7 @@ const AdminQueries = () => {
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Type your reply..."
-              className="w-full h-32 p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+              className="w-full h-32 p-3 bg-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
             />
             <div className="flex justify-end space-x-3 mt-4">
               <button
