@@ -16,7 +16,7 @@ INSERT INTO "Admins" (
 VALUES (
     'admin', 
     'admin@rajalakshmi.edu.in', 
-    '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYzpLaEg7dO', 
+    '$2a$12$4I064zdPKqSlVylBDNoeb.gPMaQBhQq8otQDpeh3PlzcoJAMsZ4va', 
     'System Administrator', 
     NOW(), 
     NOW()
