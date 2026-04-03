@@ -62,15 +62,48 @@
     min-width: 44px;
   }
   
+  /* Mobile-optimized cards */
+  .card-mobile {
+    @apply rounded-lg p-4 shadow-lg;
+  }
+  
+  /* Mobile-optimized spacing */
+  .space-mobile {
+    @apply space-y-4;
+  }
+  
+  /* Mobile-optimized grid */
+  .grid-mobile {
+    @apply grid grid-cols-1 gap-4;
+  }
+  
+  @media (min-width: 640px) {
+    .grid-mobile {
+      @apply grid-cols-2;
+    }
+  }
+  
   /* Prevent zoom on input focus (iOS) */
   input[type="text"],
   input[type="email"],
   input[type="password"],
   input[type="number"],
   input[type="tel"],
+  input[type="date"],
   textarea,
   select {
     font-size: 16px;
+  }
+  
+  /* Mobile table scroll */
+  .table-mobile {
+    @apply overflow-x-auto -mx-3 px-3;
+  }
+  
+  @media (min-width: 768px) {
+    .table-mobile {
+      @apply mx-0 px-0;
+    }
   }
   
   /* Smooth scrolling for mobile */
@@ -81,6 +114,12 @@
     
     html {
       -webkit-text-size-adjust: 100%;
+    }
+    
+    /* Better touch scrolling */
+    .overflow-y-auto,
+    .overflow-x-auto {
+      -webkit-overflow-scrolling: touch;
     }
   }
 }
