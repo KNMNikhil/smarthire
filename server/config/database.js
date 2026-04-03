@@ -11,6 +11,10 @@ const sequelize = new Sequelize(
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     dialectOptions: {
       connectTimeout: 60000,
+      ssl: process.env.NODE_ENV === 'production' ? {
+        require: true,
+        rejectUnauthorized: false
+      } : false
     },
     pool: {
       max: 5,
