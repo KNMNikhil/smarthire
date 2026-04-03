@@ -17,8 +17,11 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: ['http://localhost:3002', 'http://localhost:3000', 'http://localhost:3001', 'http://192.168.68.114:3000'],
-    methods: ['GET', 'POST']
+    origin: process.env.NODE_ENV === 'production' 
+      ? [process.env.CLIENT_URL, 'https://smarthire-frontend.onrender.com']
+      : ['http://localhost:3002', 'http://localhost:3000', 'http://localhost:3001', 'http://192.168.68.114:3000'],
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 
@@ -103,7 +106,9 @@ io.on('connection', (socket) => {
 });
 
 app.use(cors({
-  origin: ['http://localhost:3002', 'http://localhost:3000', 'http://localhost:3001', 'http://192.168.68.114:3000'],
+  origin: process.env.NODE_ENV === 'production'
+    ? [process.env.CLIENT_URL, 'https://smarthire-frontend.onrender.com']
+    : ['http://localhost:3002', 'http://localhost:3000', 'http://localhost:3001', 'http://192.168.68.114:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
