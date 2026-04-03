@@ -49,7 +49,41 @@
   }
 }
 
-
+/* Mobile-specific improvements */
+@layer utilities {
+  /* Prevent text from being too small on mobile */
+  .text-mobile-base {
+    font-size: 16px;
+  }
+  
+  /* Touch-friendly button sizes */
+  .btn-mobile {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent zoom on input focus (iOS) */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+  
+  /* Smooth scrolling for mobile */
+  @media (max-width: 768px) {
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+  }
+}
 
 @keyframes fadeSlideIn {
   to {
