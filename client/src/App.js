@@ -14,9 +14,9 @@ import ResetPassword from './components/auth/ResetPassword';
 // Lazy Components
 import {
   LazyStudentDashboard, LazyStudentInbox, LazyStudentRegistrations, LazyStudentCalendar,
-  LazyStudentBus, LazyStudentInternship, LazyStudentLearning, LazyStudentHigherStudies,
+  LazyStudentInternship, LazyStudentLearning, LazyStudentHigherStudies,
   LazyStudentQueries, LazyStudentChats, LazyStudentAlumni, LazyStudentProfile, LazyResumeScanner,
-  LazyAdminDashboard, LazyAdminStudents, LazyAdminUploads, LazyAdminBus,
+  LazyAdminDashboard, LazyAdminStudents, LazyAdminUploads,
   LazyAdminUpdates, LazyAdminStatistics, LazyAdminQueries,
   LazyAdminChats, LazyAdminHistory, LazyAdminProfile
 } from './utils/lazyLoad';
@@ -54,7 +54,6 @@ function App() {
                   <Route path="inbox" element={<Suspense><LazyStudentInbox /></Suspense>} />
                   <Route path="registrations" element={<Suspense><LazyStudentRegistrations /></Suspense>} />
                   <Route path="calendar" element={<Suspense><LazyStudentCalendar /></Suspense>} />
-                  <Route path="bus" element={<Suspense><LazyStudentBus /></Suspense>} />
                   <Route path="internship" element={<Suspense><LazyStudentInternship /></Suspense>} />
                   <Route path="learning" element={<Suspense><LazyStudentLearning /></Suspense>} />
                   <Route path="higher-studies" element={<Suspense><LazyStudentHigherStudies /></Suspense>} />
@@ -74,7 +73,6 @@ function App() {
                   <Route path="dashboard" element={<Suspense><LazyAdminDashboard /></Suspense>} />
                   <Route path="students" element={<Suspense><LazyAdminStudents /></Suspense>} />
                   <Route path="uploads" element={<Suspense><LazyAdminUploads /></Suspense>} />
-                  <Route path="bus" element={<Suspense><LazyAdminBus /></Suspense>} />
                   <Route path="updates" element={<Suspense><LazyAdminUpdates /></Suspense>} />
                   <Route path="statistics" element={<Suspense><LazyAdminStatistics /></Suspense>} />
                   <Route path="queries" element={<Suspense><LazyAdminQueries /></Suspense>} />

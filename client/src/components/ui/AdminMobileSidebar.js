@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  Menu, X, MessageSquare, HelpCircle, Bus, 
+  Menu, X, MessageSquare, HelpCircle, 
   Bell, History, LogOut 
 } from 'lucide-react';
 
@@ -14,7 +14,6 @@ const AdminMobileSidebar = ({ user, handleLogout }) => {
     { icon: <Bell className="h-5 w-5" />, label: "Updates", href: "/admin/updates" },
     { icon: <HelpCircle className="h-5 w-5" />, label: "Queries", href: "/admin/queries" },
     { icon: <MessageSquare className="h-5 w-5" />, label: "Chats", href: "/admin/chats" },
-    { icon: <Bus className="h-5 w-5" />, label: "Bus Routes", href: "/admin/bus" },
     { icon: <History className="h-5 w-5" />, label: "History", href: "/admin/history" },
   ];
 

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Menu, X, MessageSquare, HelpCircle, Users, 
-  GraduationCap, BookOpen, Bus, Briefcase, LogOut 
+  GraduationCap, BookOpen, Briefcase, LogOut 
 } from 'lucide-react';
 
 const StudentMobileSidebar = ({ user, handleLogout }) => {
@@ -16,7 +16,6 @@ const StudentMobileSidebar = ({ user, handleLogout }) => {
     { icon: <Users className="h-5 w-5" />, label: "Alumni", href: "/student/alumni" },
     { icon: <GraduationCap className="h-5 w-5" />, label: "Higher Studies", href: "/student/higher-studies" },
     { icon: <BookOpen className="h-5 w-5" />, label: "Learning", href: "/student/learning" },
-    { icon: <Bus className="h-5 w-5" />, label: "Bus Routes", href: "/student/bus" },
     { icon: <Briefcase className="h-5 w-5" />, label: "Internship", href: "/student/internship" },
   ];
 

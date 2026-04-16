@@ -25,7 +25,6 @@ export const LazyStudentDashboard = lazy(() => retryLoad(() => import('../compon
 export const LazyStudentInbox = lazy(() => retryLoad(() => import('../components/student/StudentInbox')));
 export const LazyStudentRegistrations = lazy(() => retryLoad(() => import('../components/student/StudentRegistrations')));
 export const LazyStudentCalendar = lazy(() => retryLoad(() => import('../components/student/StudentCalendar')));
-export const LazyStudentBus = lazy(() => retryLoad(() => import('../components/student/StudentBus')));
 export const LazyStudentInternship = lazy(() => retryLoad(() => import('../components/student/StudentInternship')));
 export const LazyStudentLearning = lazy(() => retryLoad(() => import('../components/student/StudentLearning')));
 export const LazyStudentHigherStudies = lazy(() => retryLoad(() => import('../components/student/StudentHigherStudies')));
@@ -38,7 +37,6 @@ export const LazyResumeScanner = lazy(() => retryLoad(() => import('../component
 export const LazyAdminDashboard = lazy(() => retryLoad(() => import('../components/admin/AdminDashboard')));
 export const LazyAdminStudents = lazy(() => retryLoad(() => import('../components/admin/AdminStudents')));
 export const LazyAdminUploads = lazy(() => retryLoad(() => import('../components/admin/AdminUploads')));
-export const LazyAdminBus = lazy(() => retryLoad(() => import('../components/admin/AdminBus')));
 export const LazyAdminUpdates = lazy(() => retryLoad(() => import('../components/admin/AdminUpdates')));
 export const LazyAdminStatistics = lazy(() => retryLoad(() => import('../components/admin/AdminStatistics')));
 export const LazyAdminQueries = lazy(() => retryLoad(() => import('../components/admin/AdminQueries')));
